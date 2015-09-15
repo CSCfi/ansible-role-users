@@ -1,0 +1,14 @@
+---
+  - name: Create admin group
+    group: "name={{admingroup}}"
+
+  - name: Add admin group to sudoers
+    lineinfile: dest=/etc/sudoers state=present regexp='^%wheel ALL\=' line='%admin ALL=(ALL) NOPASSWD:ALL' validate='visudo -cf %s'
+
+  - name: Create admin users
+    user: "name={{item.name}} uid={{item.uid}} group={{item.groups}} shell={{item.shell}}"
+    with_items: adminusers
+
+  - name: Add ssh keys to CSC users
+    authorized_key: user="{{item.name}}" key="files/{{item.name}}.pub"
+    with_items: adminusers
