@@ -3,7 +3,7 @@
     group: "name={{admingroup}}"
 
   - name: Add admin group to sudoers
-    lineinfile: dest=/etc/sudoers state=present regexp='^%wheel ALL\=' line='%admin ALL=(ALL) NOPASSWD:ALL' validate='visudo -cf %s'
+    lineinfile: dest=/etc/sudoers state=present regexp='^%admin ALL\=' line='%admin ALL=(ALL) NOPASSWD:ALL' validate='visudo -cf %s'
 
   - name: Create admin users
     user: "name={{item.name}} uid={{item.uid}} group={{item.groups}} shell={{item.shell}}"
