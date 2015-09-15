@@ -10,5 +10,5 @@
     with_items: adminusers
 
   - name: Add ssh keys to CSC users
-    authorized_key: user="{{item.name}}" key="{{item.pubkey}}"
+    authorized_key: user="{{item.name}}" key="{{ lookup('file', '{{ item.pubkey }}') }}"
     with_items: adminusers
