@@ -4,6 +4,11 @@
 
   - name: Add admin group to sudoers
     lineinfile: dest=/etc/sudoers state=present regexp='^%admin ALL\=' line='%admin ALL=(ALL) NOPASSWD:ALL' validate='visudo -cf %s'
+    register: admingroupsudoers
+
+  - name: Remove wheel group in sudoers if admin group was added
+    lineinfile: dest=/etc/sudoers state=absent regexp="^%wheel" validate='visudo -cf %s'
+    when: admingroupsudoers.changed
 
   - name: Create admin users
     user: "name={{item.name}} uid={{item.uid}} group={{item.groups}} shell={{item.shell}}"
