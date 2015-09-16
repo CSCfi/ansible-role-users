@@ -15,5 +15,5 @@
     with_items: adminusers
 
   - name: Add ssh keys to admin users
-    authorized_key: user="{{item.name}}" key="{{ lookup('file', 'files/' + item.name + '.pub') }}"
+    authorized_key: user="{{item.name}}" key="{{item.pubkey}}"
     with_items: adminusers
