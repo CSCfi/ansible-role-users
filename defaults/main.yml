@@ -1,0 +1,6 @@
+---
+# defaults for ansible-role-users
+admingroup: "admin"
+adminshell: "/bin/bash"
+adminusers:
+  - {name: admin1, uid: 5001, groups: "{{admingroup}}", shell: "{{adminshell}}", key: "ssh-rsa KEY admin1@example.com" }
