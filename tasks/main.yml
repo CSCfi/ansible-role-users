@@ -10,10 +10,11 @@
     lineinfile: dest=/etc/sudoers state=absent regexp="^%wheel" validate='visudo -cf %s'
     when: admingroupsudoers.changed
 
-  - name: Create admin users
-    user: "name={{item.name}} uid={{item.uid}} group={{item.groups}} shell={{item.shell}}"
+  - name: Add or remove admin users
+    user: "name={{item.name}} state={{item.state}} uid={{item.uid}} group={{item.groups}} shell={{item.shell}}"
     with_items: adminusers
 
   - name: Add ssh keys to admin users
     authorized_key: user="{{item.name}}" key="{{item.pubkey}}"
+    when: item.state == 'present'
     with_items: adminusers
