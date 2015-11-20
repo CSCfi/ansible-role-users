@@ -11,7 +11,14 @@
     when: admingroupsudoers.changed
 
   - name: Add or remove admin users
-    user: "name={{item.name}} state={{item.state | default('present')}} uid={{item.uid}} group={{item.groups}} shell={{item.shell | default('/bin/bash')}}"
+    user: >
+      name={{item.name}}
+      # Default to no password. Required for sshd PasswordAuthentication no
+      password={{item.password | default('*')}}
+      state={{item.state | default('present')}}
+      uid={{item.uid}}
+      group={{item.groups}}
+      shell={{item.shell | default('/bin/bash')}}
     with_items: adminusers
 
   - name: Add ssh keys to admin users
