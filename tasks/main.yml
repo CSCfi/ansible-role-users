@@ -19,10 +19,10 @@
       shell={{item.shell | default('/bin/bash')}}
     with_items: adminusers
 
-  - name: Remove passwords from admins (if remove_passwords is true)
+    # No password. Required for sshd PasswordAuthentication no
+  - name: Remove passwords from admins if remove_passwords is true
     user: >
       name={{item.name}}
-      # No password. Required for sshd PasswordAuthentication no
       password='*'
     with_items: adminusers
     when: adminremove_passwords
