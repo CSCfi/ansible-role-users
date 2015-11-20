@@ -17,3 +17,8 @@ adminremove_passwords: false
 # License
 
 MIT
+
+# Contributors
+
+ - https://github.com/martbhell
+ - https://github.com/peterjenkins1
