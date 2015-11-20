@@ -20,6 +20,7 @@
     with_items: adminusers
 
   - name: Remove passwords from admins (if remove_passwords is true)
+    user: >
       name={{item.name}}
       # No password. Required for sshd PasswordAuthentication no
       password='*'
