@@ -5,3 +5,4 @@ adminshell: "/bin/bash"
 adminusers:
   - {name: admin1, state: 'present', uid: 5001, groups: "{{admingroup}}", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY admin1@example.com" }
   - {name: bad_admin2, state: 'absent', uid: 5002, groups: "{{admingroup}}", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY admin2@example.com" }
+adminremove_passwords: false

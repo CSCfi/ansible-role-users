@@ -13,13 +13,18 @@
   - name: Add or remove admin users
     user: >
       name={{item.name}}
-      # Default to no password. Required for sshd PasswordAuthentication no
-      password={{item.password | default('*')}}
       state={{item.state | default('present')}}
       uid={{item.uid}}
       group={{item.groups}}
       shell={{item.shell | default('/bin/bash')}}
     with_items: adminusers
+
+  - name: Remove passwords from admins (if remove_passwords is true)
+      name={{item.name}}
+      # No password. Required for sshd PasswordAuthentication no
+      password='*'
+    with_items: adminusers
+    when: adminremove_passwords
 
   - name: Add ssh keys to admin users
     authorized_key: user="{{item.name}}" key="{{item.pubkey}}"
