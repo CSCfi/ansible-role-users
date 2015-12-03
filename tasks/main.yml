@@ -2,13 +2,16 @@
   - name: Create admin group
     group: "name={{admingroup}}"
 
-  - name: Add admin group to sudoers
-    lineinfile: dest=/etc/sudoers state=present regexp='^%admin ALL\=' line='%admin ALL=(ALL) NOPASSWD:ALL' validate='visudo -cf %s'
-    register: admingroupsudoers
+  - name: Create sudoers file for admin group
+    copy: dest=/etc/sudoers.d/{{ admingroup }} owner=root group=root mode=0600
+          content='%{{ admingroup }} ALL=(ALL) NOPASSWD:ALL'
+          validate='visudo -cf %s'
+
+  - name: Ensure /etc/sudoers.d is scanned by sudo
+    lineinfile: dest=/etc/sudoers regexp="#includedir\s+/etc/sudoers.d" line="#includedir /etc/sudoers.d"
 
   - name: Remove wheel group in sudoers if admin group was added
     lineinfile: dest=/etc/sudoers state=absent regexp="^%wheel" validate='visudo -cf %s'
-    when: admingroupsudoers.changed
 
   - name: Add or remove admin users
     user: >
