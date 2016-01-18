@@ -36,6 +36,11 @@
     when: adminremove_passwords
 
   - name: Add ssh keys to admin users
-    authorized_key: user="{{item.name}}" key="{{item.pubkey}}"
-    when: item.state == 'present' and item.pubkey is defined
+    authorized_key: user="{{item.name}}" key='{{item.pubkey}}'
+    when: item.state == 'present' and item.pubkey is defined and item.options is undefined
+    with_items: adminusers
+
+  - name: Add key_options if option is
+    authorized_key: user="{{item.name}}" key='{{item.pubkey}}' key_options='{{ item.options }}'
+    when: item.state == 'present' and item.pubkey is defined and item.options is defined
     with_items: adminusers
