@@ -2,6 +2,8 @@
 # defaults for ansible-role-users
 admingroup: "admin"
 adminshell: "/bin/bash"
+# If you don't want to add admingroup to sudoers - set admin_sudoers to False
+admin_sudoers: True
 adminusers:
   - {name: admin1, state: 'present', uid: 5001, groups: "{{admingroup}}", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY admin1@example.com" }
   - {name: bad_admin2, state: 'absent', uid: 5002, groups: "{{admingroup}}", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY admin2@example.com" }
