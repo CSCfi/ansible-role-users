@@ -18,10 +18,10 @@
     user: >
       name={{item.name}}
       state={{item.state | default('present')}}
-      uid={{item.uid}}
-      group={{item.groups}}
+      uid={{item.uid | default('') }}
+      group={{item.groups | default('') }}
       shell={{item.shell | default('/bin/bash')}}
-    with_items: adminusers
+    with_items: adminusers | default({})
 
   - name: Remove wheel group in sudoers if admin group was added and the sudoers.d file for the admin group was added
     lineinfile: dest=/etc/sudoers state=absent regexp="^%wheel" validate='visudo -cf %s'
@@ -32,15 +32,15 @@
     user: >
       name={{item.name}}
       password='*'
-    with_items: adminusers
+    with_items: adminusers | default({})
     when: adminremove_passwords
 
   - name: Add ssh keys to admin users
     authorized_key: user="{{item.name}}" key='{{item.pubkey}}'
     when: item.state == 'present' and item.pubkey is defined and item.options is undefined
-    with_items: adminusers
+    with_items: adminusers | default({})
 
   - name: Add key_options if option is
     authorized_key: user="{{item.name}}" key='{{item.pubkey}}' key_options='{{ item.options }}'
     when: item.state == 'present' and item.pubkey is defined and item.options is defined
-    with_items: adminusers
+    with_items: adminusers | default({})
