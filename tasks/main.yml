@@ -44,3 +44,13 @@
     authorized_key: user="{{item.name}}" key='{{item.pubkey}}' key_options='{{ item.options }}'
     when: item.state == 'present' and item.pubkey is defined and item.options is defined
     with_items: adminusers | default({})
+
+  - name: Add ssh keys to root user
+    authorized_key: user="root" key='{{item.pubkey}}'
+    when: item.state == 'present' and item.pubkey is defined
+    with_items: admin_root_keys | default({})
+
+  - name: Remove ssh keys from root user
+    authorized_key: user="root" key='{{item.pubkey}}'
+    when: item.state == 'absent' and item.pubkey is defined
+    with_items:  admin_root_keys | default({})

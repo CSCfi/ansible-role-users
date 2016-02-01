@@ -8,5 +8,10 @@ admin_sudoers: True
 #  - {name: admin1, state: 'present', uid: 5001, groups: "{{admingroup}}", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY admin1@example.com" }
 #  - {name: bad_admin2, state: 'absent', uid: 5002, groups: "{{admingroup}}", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY admin2@example.com" }
 #  - {name: rsyncuser1, state: 'present', uid: 5003, groups: "{{admingroup}}", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY rsync1@example.com", options: 'command="/usr/local/bin/rrsync /allow/rrsync/here/directory",no-agent-forwarding,no-port-forwarding,no-pty,no-user-rc,no-X11-forwarding' }
+#
+
+admin_root_keys:
+#  - { state: 'present', pubkey: "ssh-rsa KEY admin1@example.com" }
+#  - { state: 'absent', pubkey: "ssh-rsa KEY2 bad_admin2@example.com" }
 
 adminremove_passwords: false
