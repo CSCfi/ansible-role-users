@@ -14,7 +14,7 @@
     lineinfile: dest=/etc/sudoers regexp="#includedir\s+/etc/sudoers.d" line="#includedir /etc/sudoers.d"
     when: admin_sudoers
 
-  - name: Add or remove admin users
+  - name: Add or remove admin users when groups is defined per user
     user: >
       name={{item.name}}
       state={{item.state | default('present')}}
@@ -22,6 +22,16 @@
       group={{item.groups | default('') }}
       shell={{item.shell | default('/bin/bash')}}
     with_items: adminusers | default({})
+    when: item.groups is defined
+
+  - name: Add or remove admin users when groups is not defined per user
+    user: >
+      name={{item.name}}
+      state={{item.state | default('present')}}
+      uid={{item.uid | default('') }}
+      shell={{item.shell | default('/bin/bash')}}
+    with_items: adminusers | default({})
+    when: item.groups is not defined
 
   - name: Remove wheel group in sudoers if admin group was added and the sudoers.d file for the admin group was added
     lineinfile: dest=/etc/sudoers state=absent regexp="^%wheel" validate='visudo -cf %s'
