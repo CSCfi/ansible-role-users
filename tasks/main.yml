@@ -1,7 +1,18 @@
 ---
+  - name: Find correct remote user
+    set_fact: remote_user="{{ ansible_ssh_user }}" should_become=true
+    ignore_errors: true
+
+  - name: Find correct remote user
+    set_fact: remote_user="root"  should_become=true
+    ignore_errors: true
+    remote_user: "root"
+
   - name: Create admin group
     group: "name={{admingroup}}"
     register: reg_add_admin_group
+    remote_user: "{{ remote_user }}"
+    become: "{{ should_become }}"
 
   - name: Create sudoers file for admin group
     copy: dest=/etc/sudoers.d/{{ admingroup }} owner=root group=root mode=0600
@@ -9,10 +20,14 @@
           validate='visudo -cf %s'
     register: reg_add_sudoers_file_admins
     when: admin_sudoers
+    remote_user: "{{ remote_user }}"
+    become: "{{ should_become }}"
 
   - name: Ensure /etc/sudoers.d is scanned by sudo
     lineinfile: dest=/etc/sudoers regexp="#includedir\s+/etc/sudoers.d" line="#includedir /etc/sudoers.d"
     when: admin_sudoers
+    remote_user: "{{ remote_user }}"
+    become: "{{ should_become }}"
 
   - name: Add or remove admin users when groups is defined per user
     user: >
@@ -23,6 +38,8 @@
       shell={{item.shell | default('/bin/bash')}}
     with_items: adminusers | default({})
     when: item.groups is defined
+    remote_user: "{{ remote_user }}"
+    become: "{{ should_become }}"
 
   - name: Add or remove admin users when groups is not defined per user
     user: >
@@ -32,10 +49,14 @@
       shell={{item.shell | default('/bin/bash')}}
     with_items: adminusers | default({})
     when: item.groups is not defined
+    remote_user: "{{ remote_user }}"
+    become: "{{ should_become }}"
 
   - name: Remove wheel group in sudoers if admin group was added and the sudoers.d file for the admin group was added
     lineinfile: dest=/etc/sudoers state=absent regexp="^%wheel" validate='visudo -cf %s'
     when: reg_add_admin_group.changed and reg_add_sudoers_file_admins.changed and admin_sudoers
+    remote_user: "{{ remote_user }}"
+    become: "{{ should_become }}"
 
     # No password. Required for sshd PasswordAuthentication no
   - name: Remove passwords from admins if remove_passwords is true
@@ -44,23 +65,33 @@
       password='*'
     with_items: adminusers | default({})
     when: adminremove_passwords
+    remote_user: "{{ remote_user }}"
+    become: "{{ should_become }}"
 
   - name: Add ssh keys to admin users
     authorized_key: user="{{item.name}}" key='{{item.pubkey}}'
     when: item.state == 'present' and item.pubkey is defined and item.options is undefined
     with_items: adminusers | default({})
+    remote_user: "{{ remote_user }}"
+    become: "{{ should_become }}"
 
   - name: Add key_options if option is
     authorized_key: user="{{item.name}}" key='{{item.pubkey}}' key_options='{{ item.options }}'
     when: item.state == 'present' and item.pubkey is defined and item.options is defined
     with_items: adminusers | default({})
+    remote_user: "{{ remote_user }}"
+    become: "{{ should_become }}"
 
   - name: Add ssh keys to root user
     authorized_key: user="root" key='{{item.pubkey}}'
     when: item.state == 'present' and item.pubkey is defined
     with_items: admin_root_keys | default({})
+    remote_user: "{{ remote_user }}"
+    become: "{{ should_become }}"
 
   - name: Remove ssh keys from root user
     authorized_key: user="root" key='{{item.pubkey}}'
     when: item.state == 'absent' and item.pubkey is defined
     with_items:  admin_root_keys | default({})
+    remote_user: "{{ remote_user }}"
+    become: "{{ should_become }}"
