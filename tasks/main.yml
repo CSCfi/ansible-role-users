@@ -4,7 +4,7 @@
     ignore_errors: true
 
   - name: Find correct remote user
-    set_fact: remote_user="root"  should_become=true
+    set_fact: remote_user="root"  should_become=false
     ignore_errors: true
     remote_user: "root"
 
