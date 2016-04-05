@@ -2,6 +2,20 @@
 # ansible-role-users
 Ansible Role to add local unix users
 
+# Calling the role
+
+When you call the role, it needs the "gather_subset: "!all" parameter. E.g.
+
+<pre>
+- name: Configure users
+  hosts: admin_hosts
+  gather_subset: "!all"
+  roles:
+     - ansible-role-users
+</pre>
+
+This gathers enough info to be usable by the role, but doesn't try to ssh in which might by definition fail.
+
 # Role Variables
 
 <pre>
@@ -37,3 +51,4 @@ MIT
 
  - https://github.com/martbhell
  - https://github.com/peterjenkins1
+ - https://github.com/khappone
