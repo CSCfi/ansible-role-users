@@ -4,9 +4,15 @@
     ignore_errors: true
     remote_user: "root"
 
-  - name: Find correct remote user
+  - name: Find correct remote user (Ansible >= 2.1 )
     set_fact: remote_user="{{ ansible_user_id }}" should_become=true
     ignore_errors: true
+    when: ansible_user_id is defined
+
+  - name: Find correct remote user (Ansible < 2.1 )
+    set_fact: remote_user="{{ ansible_ssh_user }}" should_become=true
+    ignore_errors: true
+    when: ansible_ssh_user is defined
 
   - name: Create admin group
     group: "name={{admingroup}}"

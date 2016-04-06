@@ -4,7 +4,7 @@ Ansible Role to add local unix users
 
 # Calling the role
 
-When you call the role, it needs the "gather_subset: "!all" parameter. E.g.
+When you call the role, if your ansible version >= 2.1 it needs the "gather_subset: "!all" parameter. E.g.
 
 <pre>
 - name: Configure users
