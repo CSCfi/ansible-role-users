@@ -1,18 +1,19 @@
 ---
-  - name: Find correct remote user
+  - name: Test login in as current user
+    local_action: shell ssh -F ssh.config -o PasswordAuthentication=no {{ inventory_hostname }} "whoami"
+    ignore_errors: true
+    always_run: true
+    register: login_as_self
+
+  - name: Use root to login
     set_fact: remote_user="root"  should_become=false
-    ignore_errors: true
-    remote_user: "root"
+    always_run: true
+    when: login_as_self.rc != 0
 
-  - name: Find correct remote user (Ansible >= 2.1 )
-    set_fact: remote_user="{{ ansible_user_id }}" should_become=true
-    ignore_errors: true
-    when: ansible_user_id is defined
-
-  - name: Find correct remote user (Ansible < 2.1 )
-    set_fact: remote_user="{{ ansible_ssh_user }}" should_become=true
-    ignore_errors: true
-    when: ansible_ssh_user is defined
+  - name:  Use yourself to log in
+    set_fact: remote_user="{{ login_as_self.stdout_lines[0] }}" should_become=true
+    always_run: true
+    when: login_as_self.rc == 0
 
   - name: Create admin group
     group: "name={{admingroup}}"
