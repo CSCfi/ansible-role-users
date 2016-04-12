@@ -22,7 +22,7 @@
     become: "{{ should_become }}"
 
   - name: Create sudoers file for admin group
-    copy: dest=/etc/sudoers.d/{{ admingroup }} owner=root group=root mode=0600
+    copy: dest=/etc/sudoers.d/{{ admingroup }} owner=root group=root mode=0440
           content='%{{ admingroup }} ALL=(ALL) NOPASSWD:ALL'
           validate='visudo -cf %s'
     register: reg_add_sudoers_file_admins
