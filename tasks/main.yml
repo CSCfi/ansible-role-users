@@ -1,6 +1,6 @@
 ---
-  - name: Test login in as current user
-    local_action: shell ssh -F ssh.config -o PasswordAuthentication=no {{ inventory_hostname }} "whoami"
+  - name: Test login in as current/configured user
+    local_action: shell ssh {{ ssh_extra_args }} {{ inventory_hostname }} whoami
     ignore_errors: true
     always_run: true
     register: login_as_self
@@ -10,7 +10,7 @@
     always_run: true
     when: login_as_self.rc != 0
 
-  - name:  Use yourself to log in
+  - name:  Use current/configured user to log in
     set_fact: remote_user="{{ login_as_self.stdout_lines[0] }}" should_become=true
     always_run: true
     when: login_as_self.rc == 0
@@ -43,7 +43,7 @@
       uid={{item.uid | default('') }}
       group={{item.groups | default('') }}
       shell={{item.shell | default('/bin/bash')}}
-    with_items: adminusers | default({})
+    with_items: "{{ adminusers | default({}) }}"
     when: item.groups is defined
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
@@ -54,7 +54,7 @@
       state={{item.state | default('present')}}
       uid={{item.uid | default('') }}
       shell={{item.shell | default('/bin/bash')}}
-    with_items: adminusers | default({})
+    with_items: "{{ adminusers | default({}) }}"
     when: item.groups is not defined
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
@@ -70,7 +70,7 @@
     user: >
       name={{item.name}}
       password='*'
-    with_items: adminusers | default({})
+    with_items: "{{ adminusers | default({}) }}"
     when: adminremove_passwords
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
@@ -78,27 +78,27 @@
   - name: Add ssh keys to admin users
     authorized_key: user="{{item.name}}" key='{{item.pubkey}}'
     when: item.state == 'present' and item.pubkey is defined and item.options is undefined
-    with_items: adminusers | default({})
+    with_items: "{{ adminusers | default({}) }}"
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
 
   - name: Add key_options if option is
     authorized_key: user="{{item.name}}" key='{{item.pubkey}}' key_options='{{ item.options }}'
     when: item.state == 'present' and item.pubkey is defined and item.options is defined
-    with_items: adminusers | default({})
+    with_items: "{{ adminusers | default({}) }}"
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
 
   - name: Add ssh keys to root user
     authorized_key: user="root" key='{{item.pubkey}}'
     when: item.state == 'present' and item.pubkey is defined
-    with_items: admin_root_keys | default({})
+    with_items: "{{ admin_root_keys | default({}) }}"
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
 
   - name: Remove ssh keys from root user
     authorized_key: user="root" key='{{item.pubkey}}'
     when: item.state == 'absent' and item.pubkey is defined
-    with_items:  admin_root_keys | default({})
+    with_items: "{{ admin_root_keys | default({}) }}"
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"

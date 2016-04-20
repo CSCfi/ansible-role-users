@@ -15,3 +15,7 @@ admin_root_keys:
 #  - { state: 'absent', pubkey: "ssh-rsa KEY2 bad_admin2@example.com" }
 
 adminremove_passwords: false
+# If you need to point to a hard coded config file or otherwise mess with the
+# manual ssh which runs at the start of this role to test whether to use the 
+# default user or root.
+ssh_extra_args: "-F ssh.config -o PasswordAuthentication=no"
