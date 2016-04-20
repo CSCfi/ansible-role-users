@@ -1,6 +1,6 @@
 ---
-  - name: Test login in as current user
-    local_action: shell ssh -F ssh.config -o PasswordAuthentication=no {{ inventory_hostname }} "whoami"
+  - name: Test login in as current/configured user
+    local_action: shell ssh {{ ssh_extra_args }} {{ inventory_hostname }} whoami
     ignore_errors: true
     always_run: true
     register: login_as_self
@@ -10,7 +10,7 @@
     always_run: true
     when: login_as_self.rc != 0
 
-  - name:  Use yourself to log in
+  - name:  Use current/configured user to log in
     set_fact: remote_user="{{ login_as_self.stdout_lines[0] }}" should_become=true
     always_run: true
     when: login_as_self.rc == 0
