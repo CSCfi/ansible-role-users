@@ -7,7 +7,7 @@
     register: login_as_self
 
   - name: Use root to login
-    set_fact: remote_user="root"  should_become=false
+    set_fact: remote_user="root" should_become=false
     always_run: true
     failed_when: login_as_self.rc is not defined
     when: login_as_self.rc != 0
@@ -18,108 +18,89 @@
     failed_when: login_as_self.rc is not defined
     when: login_as_self.rc == 0
 
-  - name: Create admin group
-    group: "name={{admingroup}}"
-    register: reg_add_admin_group
-    remote_user: "{{ remote_user }}"
-    become: "{{ should_become }}"
+  # Run the rest as remote_user
+  - block:
+    - name: Gather facts now we know the username
+      setup:
 
-  - name: Create groups from a list
-    group: "name={{item.name}} gid={{item.gid}}"
-    register: reg_add_group
-    remote_user: "{{ remote_user }}"
-    become: "{{ should_become }}"
-    when: admin_list_of_groups is defined and admin_list_of_groups.0 is defined
-    with_items: "{{ admin_list_of_groups }}"
+    - name: Create admin group
+      group: "name={{admingroup}}"
+      register: reg_add_admin_group
 
-  - name: Create sudoers file for admin group
-    copy: dest=/etc/sudoers.d/{{ admingroup }} owner=root group=root mode=0440
-          content='%{{ admingroup }} ALL=(ALL) NOPASSWD:ALL'
-          validate='visudo -cf %s'
-    register: reg_add_sudoers_file_admins
-    when: admin_sudoers
-    remote_user: "{{ remote_user }}"
-    become: "{{ should_become }}"
+    - name: Create groups from a list
+      group: "name={{item.name}} gid={{item.gid}}"
+      register: reg_add_group
+      when: admin_list_of_groups is defined and admin_list_of_groups.0 is defined
+      with_items: "{{ admin_list_of_groups }}"
 
-  - name: Ensure /etc/sudoers.d is scanned by sudo
-    lineinfile: dest=/etc/sudoers regexp="#includedir\s+/etc/sudoers.d" line="#includedir /etc/sudoers.d"
-    when: admin_sudoers
-    remote_user: "{{ remote_user }}"
-    become: "{{ should_become }}"
+    - name: Install Python SE Linux support (needed on CentOS7 with Enforcing)
+      yum: name=libselinux-python
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version >= 7
 
-  - name: Add or remove admin users when groups is defined per user
-    user: >
-      name={{item.name}}
-      state={{item.state | default('present')}}
-      uid={{item.uid | default('') }}
-      group={{item.groups | default('') }}
-      shell={{item.shell | default('/bin/bash')}}
-    with_items: 
-     - "{{ adminusers | default([]) }}"
-     - "{{ moreusers | default([]) }}"
-    when: item.groups is defined
-    remote_user: "{{ remote_user }}"
-    become: "{{ should_become }}"
+    - name: Create sudoers file for admin group
+      copy: dest=/etc/sudoers.d/{{ admingroup }} owner=root group=root mode=0440
+            content='%{{ admingroup }} ALL=(ALL) NOPASSWD:ALL'
+            validate='visudo -cf %s'
+      register: reg_add_sudoers_file_admins
+      when: admin_sudoers
 
-  - name: Add or remove admin users when groups is not defined per user
-    user: >
-      name={{item.name}}
-      state={{item.state | default('present')}}
-      uid={{item.uid | default('') }}
-      shell={{item.shell | default('/bin/bash')}}
-    with_items: 
-     - "{{ adminusers | default([]) }}"
-     - "{{ moreusers | default([]) }}"
-    when: item.groups is not defined
-    remote_user: "{{ remote_user }}"
-    become: "{{ should_become }}"
+    - name: Ensure /etc/sudoers.d is scanned by sudo
+      lineinfile: dest=/etc/sudoers regexp="#includedir\s+/etc/sudoers.d" line="#includedir /etc/sudoers.d"
+      when: admin_sudoers
 
-  - name: Remove wheel group in sudoers if admin group was added and the sudoers.d file for the admin group was added
-    lineinfile: dest=/etc/sudoers state=absent regexp="^%wheel" validate='visudo -cf %s'
-    when: reg_add_admin_group.changed and reg_add_sudoers_file_admins.changed and admin_sudoers
-    remote_user: "{{ remote_user }}"
-    become: "{{ should_become }}"
+    - name: Add or remove admin users
+      user:
+        name: "{{item.name}}"
+        state: "{{item.state | default('present')}}"
+        uid: "{{item.uid | default(omit) }}"
+        group: "{{item.groups | default(omit) }}"
+        shell: "{{item.shell | default('/bin/bash')}}"
+      with_items: 
+       - "{{ adminusers | default([]) }}"
+       - "{{ moreusers | default([]) }}"
 
-    # No password. Required for sshd PasswordAuthentication no
-  - name: Remove passwords from admins if remove_passwords is true
-    user: >
-      name={{item.name}}
-      password='*'
-    with_items: 
-     - "{{ adminusers | default([]) }}"
-     - "{{ moreusers | default([]) }}"
-    when: adminremove_passwords
-    remote_user: "{{ remote_user }}"
-    become: "{{ should_become }}"
+    - name: Remove wheel group in sudoers if admin group was added and the sudoers.d file for the admin group was added
+      lineinfile:
+        dest: /etc/sudoers
+        state: absent 
+        regexp: "^%wheel"
+        validate: 'visudo -cf %s'
+      when: reg_add_admin_group.changed and reg_add_sudoers_file_admins.changed and admin_sudoers
 
-  - name: Add ssh keys to admin users
-    authorized_key: user="{{item.name}}" key='{{item.pubkey}}'
-    when: item.state == 'present' and item.pubkey is defined and item.options is undefined
-    with_items: 
-     - "{{ adminusers | default([]) }}"
-     - "{{ moreusers | default([]) }}"
-    remote_user: "{{ remote_user }}"
-    become: "{{ should_become }}"
+      # No password. Required for sshd PasswordAuthentication no
+    - name: Remove passwords from admins if remove_passwords is true
+      user:
+        name: "{{item.name}}"
+        password: '*'
+      with_items: 
+       - "{{ adminusers | default([]) }}"
+       - "{{ moreusers | default([]) }}"
+      when: adminremove_passwords
 
-  - name: Add key_options if option is
-    authorized_key: user="{{item.name}}" key='{{item.pubkey}}' key_options='{{ item.options }}'
-    when: item.state == 'present' and item.pubkey is defined and item.options is defined
-    with_items: 
-     - "{{ adminusers | default([]) }}"
-     - "{{ moreusers | default([]) }}"
-    remote_user: "{{ remote_user }}"
-    become: "{{ should_become }}"
+    - name: Add ssh keys to admin users
+      authorized_key: user="{{item.name}}" key='{{item.pubkey}}'
+      when: item.state == 'present' and item.pubkey is defined and item.options is undefined
+      with_items: 
+       - "{{ adminusers | default([]) }}"
+       - "{{ moreusers | default([]) }}"
 
-  - name: Add ssh keys to root user
-    authorized_key: user="root" key='{{item.pubkey}}'
-    when: item.state == 'present' and item.pubkey is defined
-    with_items: "{{ admin_root_keys | default([]) }}"
-    remote_user: "{{ remote_user }}"
-    become: "{{ should_become }}"
+    - name: Add key_options if option is used
+      authorized_key: user="{{item.name}}" key='{{item.pubkey}}' key_options='{{ item.options }}'
+      when: item.state == 'present' and item.pubkey is defined and item.options is defined
+      with_items: 
+       - "{{ adminusers | default([]) }}"
+       - "{{ moreusers | default([]) }}"
 
-  - name: Remove ssh keys from root user
-    authorized_key: user="root" key='{{item.pubkey}}'
-    when: item.state == 'absent' and item.pubkey is defined
-    with_items: "{{ admin_root_keys | default([]) }}"
+    - name: Add ssh keys to root user
+      authorized_key: user="root" key='{{item.pubkey}}'
+      when: item.state == 'present' and item.pubkey is defined
+      with_items: "{{ admin_root_keys | default([]) }}"
+
+    - name: Remove ssh keys from root user
+      authorized_key: user="root" key='{{item.pubkey}}'
+      when: item.state == 'absent' and item.pubkey is defined
+      with_items: "{{ admin_root_keys | default([]) }}"
+
+    # end of block
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
