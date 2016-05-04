@@ -27,7 +27,7 @@
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
     when: admin_list_of_groups is defined and admin_list_of_groups.0 is defined
-    with_items: admin_list_of_groups
+    with_items: "{{ admin_list_of_groups }}"
 
   - name: Create sudoers file for admin group
     copy: dest=/etc/sudoers.d/{{ admingroup }} owner=root group=root mode=0440
