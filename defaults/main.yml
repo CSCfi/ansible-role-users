@@ -19,3 +19,9 @@ adminremove_passwords: false
 # manual ssh which runs at the start of this role to test whether to use the 
 # default user or root.
 ssh_extra_args: "-F ssh.config -o PasswordAuthentication=no"
+# Create groups from a list
+admin_list_of_groups: []
+# 
+#admin_list_of_groups:
+#  - { name: agroup, gid: 27001 }
+#  - { name: bgroup, gid: 27002 }

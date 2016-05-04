@@ -21,6 +21,14 @@
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
 
+  - name: Create group from a list
+    group: "name={{item.name}} gid={{item.gid}}"
+    register: reg_add_group
+    remote_user: "{{ remote_user }}"
+    become: "{{ should_become }}"
+    when: admin_list_of_groups is defined and admin_list_of_groups.0 is defined
+    with_items: admin_list_of_groups
+
   - name: Create sudoers file for admin group
     copy: dest=/etc/sudoers.d/{{ admingroup }} owner=root group=root mode=0440
           content='%{{ admingroup }} ALL=(ALL) NOPASSWD:ALL'
