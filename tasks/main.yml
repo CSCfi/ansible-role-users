@@ -3,6 +3,7 @@
     local_action: shell ssh {{ ssh_extra_args }} {{ inventory_hostname }} whoami
     ignore_errors: true
     always_run: true
+    changed_when: login_as_self.rc is not defined
     register: login_as_self
 
   - name: Use root to login
@@ -21,7 +22,7 @@
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
 
-  - name: Create group from a list
+  - name: Create groups from a list
     group: "name={{item.name}} gid={{item.gid}}"
     register: reg_add_group
     remote_user: "{{ remote_user }}"
