@@ -3,16 +3,19 @@
     local_action: shell ssh {{ ssh_extra_args }} {{ inventory_hostname }} whoami
     ignore_errors: true
     always_run: true
+    changed_when: login_as_self.rc is not defined
     register: login_as_self
 
   - name: Use root to login
     set_fact: remote_user="root"  should_become=false
     always_run: true
+    failed_when: login_as_self.rc is not defined
     when: login_as_self.rc != 0
 
   - name:  Use current/configured user to log in
     set_fact: remote_user="{{ login_as_self.stdout_lines[0] }}" should_become=true
     always_run: true
+    failed_when: login_as_self.rc is not defined
     when: login_as_self.rc == 0
 
   - name: Create admin group
@@ -21,7 +24,7 @@
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
 
-  - name: Create group from a list
+  - name: Create groups from a list
     group: "name={{item.name}} gid={{item.gid}}"
     register: reg_add_group
     remote_user: "{{ remote_user }}"
