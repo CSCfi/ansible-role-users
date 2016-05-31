@@ -120,9 +120,9 @@ function test_playbook(){
 function extra_tests(){
 
     echo "TEST: getent passwd | tail"
-    getent passwd|head
+    getent passwd|tail
     echo "TEST: getent group | tail"
-    getent group|head
+    getent group|tail
 }
 
 
