@@ -54,7 +54,9 @@
       uid={{item.uid | default('') }}
       group={{item.groups | default('') }}
       shell={{item.shell | default('/bin/bash')}}
-    with_items: "{{ adminusers | default({}) }}"
+    with_items: 
+     - "{{ adminusers | default({}) }}"
+     - "{{ moreusers | default({}) }}"
     when: item.groups is defined
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
@@ -65,7 +67,9 @@
       state={{item.state | default('present')}}
       uid={{item.uid | default('') }}
       shell={{item.shell | default('/bin/bash')}}
-    with_items: "{{ adminusers | default({}) }}"
+    with_items: 
+     - "{{ adminusers | default({}) }}"
+     - "{{ moreusers | default({}) }}"
     when: item.groups is not defined
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
@@ -81,7 +85,9 @@
     user: >
       name={{item.name}}
       password='*'
-    with_items: "{{ adminusers | default({}) }}"
+    with_items: 
+     - "{{ adminusers | default({}) }}"
+     - "{{ moreusers | default({}) }}"
     when: adminremove_passwords
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
@@ -89,14 +95,18 @@
   - name: Add ssh keys to admin users
     authorized_key: user="{{item.name}}" key='{{item.pubkey}}'
     when: item.state == 'present' and item.pubkey is defined and item.options is undefined
-    with_items: "{{ adminusers | default({}) }}"
+    with_items: 
+     - "{{ adminusers | default({}) }}"
+     - "{{ moreusers | default({}) }}"
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
 
   - name: Add key_options if option is
     authorized_key: user="{{item.name}}" key='{{item.pubkey}}' key_options='{{ item.options }}'
     when: item.state == 'present' and item.pubkey is defined and item.options is defined
-    with_items: "{{ adminusers | default({}) }}"
+    with_items: 
+     - "{{ adminusers | default({}) }}"
+     - "{{ moreusers | default({}) }}"
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
 
