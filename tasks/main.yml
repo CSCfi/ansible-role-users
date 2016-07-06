@@ -55,8 +55,8 @@
       group={{item.groups | default('') }}
       shell={{item.shell | default('/bin/bash')}}
     with_items: 
-     - "{{ adminusers | default({}) }}"
-     - "{{ moreusers | default({}) }}"
+     - "{{ adminusers | default([]) }}"
+     - "{{ moreusers | default([]) }}"
     when: item.groups is defined
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
@@ -68,8 +68,8 @@
       uid={{item.uid | default('') }}
       shell={{item.shell | default('/bin/bash')}}
     with_items: 
-     - "{{ adminusers | default({}) }}"
-     - "{{ moreusers | default({}) }}"
+     - "{{ adminusers | default([]) }}"
+     - "{{ moreusers | default([]) }}"
     when: item.groups is not defined
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
@@ -86,8 +86,8 @@
       name={{item.name}}
       password='*'
     with_items: 
-     - "{{ adminusers | default({}) }}"
-     - "{{ moreusers | default({}) }}"
+     - "{{ adminusers | default([]) }}"
+     - "{{ moreusers | default([]) }}"
     when: adminremove_passwords
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
@@ -96,8 +96,8 @@
     authorized_key: user="{{item.name}}" key='{{item.pubkey}}'
     when: item.state == 'present' and item.pubkey is defined and item.options is undefined
     with_items: 
-     - "{{ adminusers | default({}) }}"
-     - "{{ moreusers | default({}) }}"
+     - "{{ adminusers | default([]) }}"
+     - "{{ moreusers | default([]) }}"
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
 
@@ -105,21 +105,21 @@
     authorized_key: user="{{item.name}}" key='{{item.pubkey}}' key_options='{{ item.options }}'
     when: item.state == 'present' and item.pubkey is defined and item.options is defined
     with_items: 
-     - "{{ adminusers | default({}) }}"
-     - "{{ moreusers | default({}) }}"
+     - "{{ adminusers | default([]) }}"
+     - "{{ moreusers | default([]) }}"
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
 
   - name: Add ssh keys to root user
     authorized_key: user="root" key='{{item.pubkey}}'
     when: item.state == 'present' and item.pubkey is defined
-    with_items: "{{ admin_root_keys | default({}) }}"
+    with_items: "{{ admin_root_keys | default([]) }}"
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
 
   - name: Remove ssh keys from root user
     authorized_key: user="root" key='{{item.pubkey}}'
     when: item.state == 'absent' and item.pubkey is defined
-    with_items: "{{ admin_root_keys | default({}) }}"
+    with_items: "{{ admin_root_keys | default([]) }}"
     remote_user: "{{ remote_user }}"
     become: "{{ should_become }}"
