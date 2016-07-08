@@ -12,5 +12,4 @@
        - {name: user3, state: 'absent', uid: 6003 }
        - {name: user4, state: 'absent', uid: 6004, pubkey: "ssh-rsa KEY user4@example.com" }
    roles:
-   roles:
      - ansible-role-users
