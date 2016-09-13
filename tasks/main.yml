@@ -48,7 +48,7 @@
       lineinfile: dest=/etc/sudoers regexp="#includedir\s+/etc/sudoers.d" line="#includedir /etc/sudoers.d"
       when: admin_sudoers
 
-    - name: Add or remove admin users from the adminusers and moreusers lists
+    - name: Add or remove users from the adminusers and moreusers lists
       user:
         name: "{{item.name}}"
         state: "{{item.state | default('present')}}"
@@ -72,6 +72,10 @@
       user:
         name: "{{item.name}}"
         password: '*'
+        state: "{{item.state | default('present')}}"
+        uid: "{{item.uid | default(omit) }}"
+        group: "{{item.groups | default(omit) }}"
+        shell: "{{item.shell | default('/bin/bash')}}"
       with_items: 
        - "{{ adminusers | default([]) }}"
        - "{{ moreusers | default([]) }}"
@@ -84,14 +88,12 @@
        - "{{ adminusers | default([]) }}"
        - "{{ moreusers | default([]) }}"
 
-    - name: Add ssh keys to root user
-      authorized_key: user="root" key='{{item.pubkey}}'
-      when: item.state == 'present' and item.pubkey is defined
-      with_items: "{{ admin_root_keys | default([]) }}"
-
-    - name: Remove ssh keys from root user
-      authorized_key: user="root" key='{{item.pubkey}}'
-      when: item.state == 'absent' and item.pubkey is defined
+    - name: Add or remove ssh keys to root user
+      authorized_key: 
+        user: "root" 
+        key: '{{item.pubkey}}'
+        state: "{{item.state | default('present')}}"
+      when: item.pubkey is defined
       with_items: "{{ admin_root_keys | default([]) }}"
 
     # end of block
