@@ -16,6 +16,7 @@ When you call the role, you need to set gather_facts to false.
 
 # Role Variables
 
+More examples can be found in tests/test.yml:
 <pre>
 admingroup: "admin"
 adminshell: "/bin/bash"
@@ -29,7 +30,7 @@ adminremove_passwords: false
  - adminremove_passwords: True
   - this will set passwords on the users to "\*"
  - admin_sudoers: True
-  - this will not add the admingroup to sudoers
+  - this will add the admingroup to sudoers
 
 # multiple ssh keys to a single user
 
