@@ -11,5 +11,8 @@
        - {name: user2, state: 'present', uid: 6002 }
        - {name: user3, state: 'absent', uid: 6003 }
        - {name: user4, state: 'absent', uid: 6004, pubkey: "ssh-rsa KEY user4@example.com" }
+       - {name: user5, state: 'present', uid: 6005, pubkey: "ssh-rsa KEY5 user5@example.com" }
+       - {name: user6, state: 'present', uid: 6006, pubkey: "ssh-rsa KEY6 user6@example.com", options: 'command="/usr/local/bin/rrsync /allow/rrsync/here/directory",no-agent-forwarding,no-port-forwarding,no-pty,no-user-rc,no-X11-forwarding' }
+       - {name: user7, state: 'absent', uid: 6007, pubkey: "ssh-rsa KEY6 user6@example.com", options: 'command="/usr/local/bin/rrsync /allow/rrsync/here/directory",no-agent-forwarding,no-port-forwarding,no-pty,no-user-rc,no-X11-forwarding' }
    roles:
      - ansible-role-users
