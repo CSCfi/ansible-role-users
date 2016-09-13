@@ -123,6 +123,10 @@ function extra_tests(){
     getent passwd|tail
     echo "TEST: getent group | tail"
     getent group|tail
+    echo "TEST: cat root users authorized_keys"
+    cat /root/.ssh/authorized_keys
+    echo "TEST: tree /home"
+    tree /home
 }
 
 

@@ -14,5 +14,9 @@
        - {name: user5, state: 'present', uid: 6005, pubkey: "ssh-rsa KEY5 user5@example.com" }
        - {name: user6, state: 'present', uid: 6006, pubkey: "ssh-rsa KEY6 user6@example.com", options: 'command="/usr/local/bin/rrsync /allow/rrsync/here/directory",no-agent-forwarding,no-port-forwarding,no-pty,no-user-rc,no-X11-forwarding' }
        - {name: user7, state: 'absent', uid: 6007, pubkey: "ssh-rsa KEY6 user6@example.com", options: 'command="/usr/local/bin/rrsync /allow/rrsync/here/directory",no-agent-forwarding,no-port-forwarding,no-pty,no-user-rc,no-X11-forwarding' }
+     - admin_root_keys:
+       - { state: 'present', pubkey: "ssh-rsa KEY admin1@example.com" }
+       - { state: 'absent', pubkey: "ssh-rsa KEY2 bad_admin2@example.com" }
+
    roles:
      - ansible-role-users
