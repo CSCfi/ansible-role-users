@@ -34,7 +34,7 @@
       with_items: "{{ admin_list_of_groups }}"
 
     - name: Install Python SE Linux support (needed on CentOS7 with Enforcing)
-      yum: name=libselinux-python
+      package: name=libselinux-python state=present
       when: ansible_os_family == "RedHat" and ansible_distribution_major_version >= 7
 
     - name: Create sudoers file for admin group
