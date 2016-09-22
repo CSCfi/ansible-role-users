@@ -28,7 +28,9 @@
       register: reg_add_admin_group
 
     - name: Create groups from a list
-      group: "name={{item.name}} gid={{item.gid}}"
+      group: 
+        name: "{{item.name}}"
+        gid: "{{item.gid | default(omit)}}"
       register: reg_add_group
       when: admin_list_of_groups is defined and admin_list_of_groups.0 is defined
       with_items: "{{ admin_list_of_groups }}"
@@ -53,7 +55,8 @@
         name: "{{item.name}}"
         state: "{{item.state | default('present')}}"
         uid: "{{item.uid | default(omit) }}"
-        group: "{{item.groups | default(omit) }}"
+        group: "{{item.group | default(omit) }}"
+        groups: "{{item.groups | default(omit) }}"
         shell: "{{item.shell | default('/bin/bash')}}"
       with_items: 
        - "{{ adminusers | default([]) }}"
@@ -74,7 +77,8 @@
         password: '*'
         state: "{{item.state | default('present')}}"
         uid: "{{item.uid | default(omit) }}"
-        group: "{{item.groups | default(omit) }}"
+        group: "{{item.group | default(omit) }}"
+        groups: "{{item.groups | default(omit) }}"
         shell: "{{item.shell | default('/bin/bash')}}"
       with_items: 
        - "{{ adminusers | default([]) }}"
