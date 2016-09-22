@@ -38,7 +38,7 @@ Can be done with this trick:
 <pre>
 newline: "\n"
 
-  - { name: multisshkeyuser, uid: 5004, group: "{{admingroup}}", groups: "agroup, bgroup", state: "present", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY1 {{ newline }} ssh-rsa KEY2 {{ newline }} ssh-rsa KEY3" }
+  - { name: multisshkeyuser, uid: 5004, group: "{{admingroup}}", groups: "agroup,bgroup", state: "present", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY1 {{ newline }} ssh-rsa KEY2 {{ newline }} ssh-rsa KEY3" }
 
 </pre>
 
