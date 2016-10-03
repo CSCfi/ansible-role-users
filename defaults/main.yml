@@ -12,7 +12,7 @@ admin_sudoers: True
 #moreusers:
 #  - {name: someotheruser1, state: 'present', uid: 6001, shell: "{{adminshell}}" }
 
-admin_root_keys:
+#admin_root_keys:
 #  - { state: 'present', pubkey: "ssh-rsa KEY admin1@example.com" }
 #  - { state: 'absent', pubkey: "ssh-rsa KEY2 bad_admin2@example.com" }
 
