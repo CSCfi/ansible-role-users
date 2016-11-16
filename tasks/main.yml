@@ -120,7 +120,7 @@
       with_items: "{{ admin_root_keys | default([]) }}"
       loop_control:
         loop_var: user
-        label: "{{ user.name }}"
+        label: "{{ user.pubkey }}"
 
     # end of block
     remote_user: "{{ remote_user }}"
