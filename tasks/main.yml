@@ -29,11 +29,14 @@
 
     - name: Create groups from a list
       group: 
-        name: "{{item.name}}"
-        gid: "{{item.gid | default(omit)}}"
+        name: "{{user.name}}"
+        gid: "{{user.gid | default(omit)}}"
       register: reg_add_group
       when: admin_list_of_groups is defined and admin_list_of_groups.0 is defined
       with_items: "{{ admin_list_of_groups }}"
+      loop_control:
+        loop_var: user
+        label: "{{ user.name }}"
 
     - name: Install Python SE Linux support (needed on CentOS7 with Enforcing)
       package: name=libselinux-python state=present
@@ -52,17 +55,20 @@
 
     - name: Add or remove users from the adminusers and moreusers lists
       user:
-        name: "{{item.name}}"
-        state: "{{item.state | default('present')}}"
-        uid: "{{item.uid | default(omit) }}"
-        group: "{{item.group | default(omit) }}"
-        groups: "{{item.groups | default(omit) }}"
-        shell: "{{item.shell | default('/bin/bash')}}"
-        comment: "{{item.comment | default(omit)}}"
-        remove: "{{item.remove | default(omit)}}"
+        name: "{{user.name}}"
+        state: "{{user.state | default('present')}}"
+        uid: "{{user.uid | default(omit) }}"
+        group: "{{user.group | default(omit) }}"
+        groups: "{{user.groups | default(omit) }}"
+        shell: "{{user.shell | default('/bin/bash')}}"
+        comment: "{{user.comment | default(omit)}}"
+        remove: "{{user.remove | default(omit)}}"
       with_items: 
        - "{{ adminusers | default([]) }}"
        - "{{ moreusers | default([]) }}"
+      loop_control:
+        loop_var: user
+        label: "{{ user.name }}"
 
     - name: Remove wheel group in sudoers if admin group was added and the sudoers.d file for the admin group was added
       lineinfile:
@@ -75,34 +81,46 @@
       # No password. Required for sshd PasswordAuthentication no
     - name: Remove passwords from present adminusers and moreusers if adminremove_passwords is True
       user:
-        name: "{{item.name}}"
+        name: "{{user.name}}"
         password: '*'
-        state: "{{item.state | default('present')}}"
-        uid: "{{item.uid | default(omit) }}"
-        group: "{{item.group | default(omit) }}"
-        groups: "{{item.groups | default(omit) }}"
-        shell: "{{item.shell | default('/bin/bash')}}"
-        comment: "{{item.comment | default(omit)}}"
-        remove: "{{item.remove | default(omit)}}"
+        state: "{{user.state | default('present')}}"
+        uid: "{{user.uid | default(omit) }}"
+        group: "{{user.group | default(omit) }}"
+        groups: "{{user.groups | default(omit) }}"
+        shell: "{{user.shell | default('/bin/bash')}}"
+        comment: "{{user.comment | default(omit)}}"
+        remove: "{{user.remove | default(omit)}}"
       with_items: 
        - "{{ adminusers | default([]) }}"
        - "{{ moreusers | default([]) }}"
-      when: adminremove_passwords and item.state == 'present'
+      when: adminremove_passwords and user.state == 'present'
+      loop_control:
+        loop_var: user
+        label: "{{ user.name }}"
 
     - name: Add ssh keys and use key_options if option is used
-      authorized_key: user="{{item.name}}" key='{{item.pubkey}}' key_options='{{ item.options | default(omit) }}'
-      when: item.state == 'present' and item.pubkey is defined
+      authorized_key: 
+        user: "{{user.name}}" 
+        key: '{{user.pubkey}}' 
+        key_options: '{{ user.options | default(omit) }}'
+      when: user.state == 'present' and user.pubkey is defined
       with_items: 
        - "{{ adminusers | default([]) }}"
        - "{{ moreusers | default([]) }}"
+      loop_control:
+        loop_var: user
+        label: "{{ user.name }}"
 
     - name: Add or remove ssh keys to root user
       authorized_key: 
         user: "root" 
-        key: '{{item.pubkey}}'
-        state: "{{item.state | default('present')}}"
-      when: item.pubkey is defined
+        key: '{{user.pubkey}}'
+        state: "{{user.state | default('present')}}"
+      when: user.pubkey is defined
       with_items: "{{ admin_root_keys | default([]) }}"
+      loop_control:
+        loop_var: user
+        label: "{{ user.name }}"
 
     # end of block
     remote_user: "{{ remote_user }}"
