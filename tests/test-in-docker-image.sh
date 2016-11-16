@@ -14,6 +14,7 @@ ANSIBLE_INVENTORY="tests/inventory"
 ANSIBLE_PLAYBOOk="tests/test.yml"
 #ANSIBLE_LOG_LEVEL=""
 ANSIBLE_LOG_LEVEL="-vvv"
+ANSIBLE_CHECK_LOG_LEVEL=""
 APACHE_CTL="apache2ctl"
 
 # if there wasn't sudo then ansible couldn't use it
@@ -104,7 +105,7 @@ function test_playbook_syntax(){
 }
 
 function test_playbook_check(){
-    echo "TEST: ansible-playbook -i ${ANSIBLE_INVENTORY} ${ANSIBLE_PLAYBOOk} ${ANSIBLE_LOG_LEVEL} --connection=local ${SUDO_OPTION} ${ANSIBLE_EXTRA_VARS} --check"
+    echo "TEST: ansible-playbook -i ${ANSIBLE_INVENTORY} ${ANSIBLE_PLAYBOOk} ${ANSIBLE_CHECK_LOG_LEVEL} --connection=local ${SUDO_OPTION} ${ANSIBLE_EXTRA_VARS} --check"
 
     ansible-playbook -i ${ANSIBLE_INVENTORY} ${ANSIBLE_PLAYBOOk} ${ANSIBLE_LOG_LEVEL} --connection=local ${SUDO_OPTION} ${ANSIBLE_EXTRA_VARS} --check ||(echo "playbook check failed" && exit 2 )
 
