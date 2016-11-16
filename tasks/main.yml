@@ -121,13 +121,14 @@
     - name: Add to or remove ssh keys from root user
       authorized_key:
         user: "root"
-        key: '{{key.pubkey}}'
-        state: "{{key.state | default('present')}}"
-      when: key.pubkey is defined
+        key: '{{akey.pubkey}}'
+        state: "{{akey.state | default('present')}}"
+      when: akey.pubkey is defined
       with_items: "{{ admin_root_keys | default([]) }}"
       loop_control:
-        loop_var: key
-        label: "{{ key.pubkey }}"
+        loop_var: akey
+        label: "{{ akey.pubkey }}"
+        # use a loop_var that is not the same as a parameter of the module (key)
 
     # end of block
     remote_user: "{{ remote_user }}"
