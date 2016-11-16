@@ -53,7 +53,7 @@
       lineinfile: dest=/etc/sudoers regexp="#includedir\s+/etc/sudoers.d" line="#includedir /etc/sudoers.d"
       when: admin_sudoers
 
-    - name: Add or remove users from the adminusers and moreusers lists
+    - name: Add or remove users from the lists in admin_list_of_user_lists
       user:
         name: "{{user.name}}"
         state: "{{user.state | default('present')}}"
@@ -63,9 +63,7 @@
         shell: "{{user.shell | default('/bin/bash')}}"
         comment: "{{user.comment | default(omit)}}"
         remove: "{{user.remove | default(omit)}}"
-      with_items: 
-       - "{{ adminusers | default([]) }}"
-       - "{{ moreusers | default([]) }}"
+      with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
