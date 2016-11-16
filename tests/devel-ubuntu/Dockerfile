@@ -1,4 +1,4 @@
-FROM ubuntu:16.10
+FROM ubuntu:15.10
 # You can change the FROM Instruction to your existing images if you like and build it with same tag
 ENV container docker
 ENV LC_ALL C
@@ -8,10 +8,10 @@ APT::Get::Assume-Yes "true"; \n\
 APT::Get::force-yes "true"; \n\
 APT::Install-Suggests "0";' > /etc/apt/apt.conf.d/01buildconfig
 RUN mkdir -p  /etc/apt/sources.d/
-RUN echo "deb mirror://mirrors.ubuntu.com/mirrors.txt yakkety main restricted universe multiverse \n\
-deb mirror://mirrors.ubuntu.com/mirrors.txt yakkety-updates main restricted universe multiverse \n\
-deb mirror://mirrors.ubuntu.com/mirrors.txt yakkety-backports main restricted universe multiverse \n\
-deb mirror://mirrors.ubuntu.com/mirrors.txt yakkety-security main restricted universe multiverse" > /etc/apt/sources.d/ubuntu-mirrors.list
+RUN echo "deb mirror://mirrors.ubuntu.com/mirrors.txt wily main restricted universe multiverse \n\
+deb mirror://mirrors.ubuntu.com/mirrors.txt wily-updates main restricted universe multiverse \n\
+deb mirror://mirrors.ubuntu.com/mirrors.txt wily-backports main restricted universe multiverse \n\
+deb mirror://mirrors.ubuntu.com/mirrors.txt wily-security main restricted universe multiverse" > /etc/apt/sources.d/ubuntu-mirrors.list
 RUN apt-get update && apt-get install systemd sudo && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN cd /lib/systemd/system/sysinit.target.wants/; ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1 \
 rm -f /lib/systemd/system/multi-user.target.wants/*;\
