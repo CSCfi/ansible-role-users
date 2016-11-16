@@ -1,19 +1,23 @@
 ---
   - name: Test login in as current/configured user
-    local_action: shell ssh {{ ssh_extra_args }} {{ inventory_hostname }} whoami
+    local_action: shell ssh {{ssh_extra_args}} {{inventory_hostname}} whoami
     ignore_errors: true
     always_run: true
     changed_when: login_as_self.rc is not defined
     register: login_as_self
 
   - name: Use root to login
-    set_fact: remote_user="root" should_become=false
+    set_fact: 
+      remote_user: "root" 
+      should_become: false
     always_run: true
     failed_when: login_as_self.rc is not defined
     when: login_as_self.rc != 0
 
   - name: Use current/configured user to log in
-    set_fact: remote_user="{{ login_as_self.stdout_lines[0] }}" should_become=true
+    set_fact: 
+      remote_user: "{{login_as_self.stdout_lines[0]}}" 
+      should_become: true
     always_run: true
     failed_when: login_as_self.rc is not defined
     when: login_as_self.rc == 0
@@ -39,27 +43,36 @@
         label: "{{ user.name }}"
 
     - name: Install Python SE Linux support (needed on CentOS7 with Enforcing)
-      package: name=libselinux-python state=present
+      package: 
+        name: libselinux-python 
+        state: present
       when: ansible_os_family == "RedHat" and ansible_distribution_major_version >= 7
 
     - name: Create sudoers file for admin group
-      copy: dest=/etc/sudoers.d/{{ admingroup }} owner=root group=root mode=0440
-            content='%{{ admingroup }} ALL=(ALL) NOPASSWD:ALL'
-            validate='visudo -cf %s'
+      copy: 
+        dest: "/etc/sudoers.d/{{admingroup}}"
+        owner: "root"
+        group: "root"
+        mode: 0440
+        content: '%{{admingroup}} ALL=(ALL) NOPASSWD:ALL'
+        validate: 'visudo -cf %s'
       register: reg_add_sudoers_file_admins
       when: admin_sudoers
 
     - name: Ensure /etc/sudoers.d is scanned by sudo
-      lineinfile: dest=/etc/sudoers regexp="#includedir\s+/etc/sudoers.d" line="#includedir /etc/sudoers.d"
+      lineinfile: 
+        dest: "/etc/sudoers"
+        regexp: "#includedir\s+/etc/sudoers.d"
+        line: "#includedir /etc/sudoers.d"
       when: admin_sudoers
 
     - name: Add or remove users from the lists in admin_list_of_user_lists
       user:
         name: "{{user.name}}"
         state: "{{user.state | default('present')}}"
-        uid: "{{user.uid | default(omit) }}"
-        group: "{{user.group | default(omit) }}"
-        groups: "{{user.groups | default(omit) }}"
+        uid: "{{user.uid | default(omit)}}"
+        group: "{{user.group | default(omit)}}"
+        groups: "{{user.groups | default(omit)}}"
         shell: "{{user.shell | default('/bin/bash')}}"
         comment: "{{user.comment | default(omit)}}"
         remove: "{{user.remove | default(omit)}}"
@@ -82,9 +95,9 @@
         name: "{{user.name}}"
         password: '*'
         state: "{{user.state | default('present')}}"
-        uid: "{{user.uid | default(omit) }}"
-        group: "{{user.group | default(omit) }}"
-        groups: "{{user.groups | default(omit) }}"
+        uid: "{{user.uid | default(omit)}}"
+        group: "{{user.group | default(omit)}}"
+        groups: "{{user.groups | default(omit)}}"
         shell: "{{user.shell | default('/bin/bash')}}"
         comment: "{{user.comment | default(omit)}}"
         remove: "{{user.remove | default(omit)}}"
@@ -98,7 +111,7 @@
       authorized_key: 
         user: "{{user.name}}" 
         key: '{{user.pubkey}}' 
-        key_options: '{{ user.options | default(omit) }}'
+        key_options: '{{user.options | default(omit)}}'
       when: user.state == 'present' and user.pubkey is defined
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
