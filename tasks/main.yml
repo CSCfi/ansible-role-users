@@ -88,9 +88,7 @@
         shell: "{{user.shell | default('/bin/bash')}}"
         comment: "{{user.comment | default(omit)}}"
         remove: "{{user.remove | default(omit)}}"
-      with_items: 
-       - "{{ adminusers | default([]) }}"
-       - "{{ moreusers | default([]) }}"
+      with_items: "{{ admin_list_of_user_lists | default([]) }}"
       when: adminremove_passwords and user.state == 'present'
       loop_control:
         loop_var: user
@@ -102,9 +100,7 @@
         key: '{{user.pubkey}}' 
         key_options: '{{ user.options | default(omit) }}'
       when: user.state == 'present' and user.pubkey is defined
-      with_items: 
-       - "{{ adminusers | default([]) }}"
-       - "{{ moreusers | default([]) }}"
+      with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
