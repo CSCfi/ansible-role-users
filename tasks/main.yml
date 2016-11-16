@@ -8,7 +8,7 @@
 
   - name: Use root to login
     set_fact: 
-      remote_user: "root" 
+      remote_user: "root"
       should_become: false
     always_run: true
     failed_when: login_as_self.rc is not defined
@@ -44,7 +44,7 @@
 
     - name: Install Python SE Linux support (needed on CentOS7 with Enforcing)
       package: 
-        name: libselinux-python 
+        name: libselinux-python
         state: present
       when: ansible_os_family == "RedHat" and ansible_distribution_major_version >= 7
 
@@ -61,9 +61,9 @@
 
     - name: Ensure /etc/sudoers.d is scanned by sudo
       lineinfile: 
-        dest: "/etc/sudoers"
-        regexp: "#includedir\s+/etc/sudoers.d"
-        line: "#includedir /etc/sudoers.d"
+        dest: '/etc/sudoers'
+        regexp: '#includedir\s+/etc/sudoers.d'
+        line: '#includedir /etc/sudoers.d'
       when: admin_sudoers
 
     - name: Add or remove users from the lists in admin_list_of_user_lists
