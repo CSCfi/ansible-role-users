@@ -2,7 +2,7 @@
   - name: Test login in as current/configured user
     local_action: shell ssh {{ssh_extra_args}} {{inventory_hostname}} whoami
     ignore_errors: true
-    always_run: true
+    check_mode: true
     changed_when: login_as_self.rc is not defined
     register: login_as_self
 
@@ -10,7 +10,7 @@
     set_fact:
       remote_user: "root"
       should_become: false
-    always_run: true
+    check_mode: true
     failed_when: login_as_self.rc is not defined
     when: login_as_self.rc != 0
 
@@ -18,7 +18,7 @@
     set_fact:
       remote_user: "{{login_as_self.stdout_lines[0]}}"
       should_become: true
-    always_run: true
+    check_mode: true
     failed_when: login_as_self.rc is not defined
     when: login_as_self.rc == 0
 
