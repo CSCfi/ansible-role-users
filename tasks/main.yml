@@ -28,7 +28,7 @@
       register: reg_add_admin_group
 
     - name: Create groups from a list
-      group: 
+      group:
         name: "{{user.name}}"
         gid: "{{user.gid | default(omit)}}"
       register: reg_add_group
@@ -61,7 +61,7 @@
         group: "{{user.group | default(omit) }}"
         groups: "{{user.groups | default(omit) }}"
         shell: "{{user.shell | default('/bin/bash')}}"
-      with_items: 
+      with_items:
        - "{{ adminusers | default([]) }}"
        - "{{ moreusers | default([]) }}"
       loop_control:
@@ -71,7 +71,7 @@
     - name: Remove wheel group in sudoers if admin group was added and the sudoers.d file for the admin group was added
       lineinfile:
         dest: /etc/sudoers
-        state: absent 
+        state: absent
         regexp: "^%wheel"
         validate: 'visudo -cf %s'
       when: reg_add_admin_group.changed and reg_add_sudoers_file_admins.changed and admin_sudoers
@@ -86,7 +86,7 @@
         group: "{{user.group | default(omit) }}"
         groups: "{{user.groups | default(omit) }}"
         shell: "{{user.shell | default('/bin/bash')}}"
-      with_items: 
+      with_items:
        - "{{ adminusers | default([]) }}"
        - "{{ moreusers | default([]) }}"
       loop_control:
@@ -97,7 +97,7 @@
     - name: Add ssh keys and use key_options if option is used
       authorized_key: user="{{user.name}}" key='{{user.pubkey}}' key_options='{{ user.options | default(omit) }}'
       when: user.state == 'present' and user.pubkey is defined
-      with_items: 
+      with_items:
        - "{{ adminusers | default([]) }}"
        - "{{ moreusers | default([]) }}"
       loop_control:
@@ -105,8 +105,8 @@
         label: "{{ user.name }}"
 
     - name: Add or remove ssh keys to root user
-      authorized_key: 
-        user: "root" 
+      authorized_key:
+        user: "root"
         key: '{{user.pubkey}}'
         state: "{{user.state | default('present')}}"
       when: user.pubkey is defined
