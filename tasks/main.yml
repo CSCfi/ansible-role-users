@@ -6,8 +6,8 @@
     changed_when: login_as_self.rc is not defined
     register: login_as_self
 
-  - name: Use root to login
-    set_fact: remote_user="root" should_become=false
+  - name: Use bootstrap_user to login
+    set_fact: remote_user="{{ bootstrap_user }}" should_become=true
     always_run: true
     failed_when: login_as_self.rc is not defined
     when: login_as_self.rc != 0

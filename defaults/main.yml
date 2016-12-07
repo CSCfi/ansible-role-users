@@ -1,5 +1,9 @@
 ---
 # defaults for ansible-role-users
+# Bootstrap user which can create the accounts
+# Can be e.g. root, or cloud-user, or ubuntu
+bootstrap_user: "root"
+
 admingroup: "admin"
 adminshell: "/bin/bash"
 # If you don't want to add admingroup to sudoers - set admin_sudoers to False
