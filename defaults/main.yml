@@ -1,5 +1,9 @@
 ---
 # defaults for ansible-role-users
+# Bootstrap user which can create the accounts
+# Can be e.g. root, or cloud-user, or ubuntu
+bootstrap_user: "root"
+
 admingroup: "admin"
 adminshell: "/bin/bash"
 # If you don't want to add admingroup to sudoers - set admin_sudoers to False
@@ -12,6 +16,11 @@ admin_sudoers: True
 #moreusers:
 #  - {name: someotheruser1, state: 'present', uid: 6001, shell: "{{adminshell}}" }
 
+admin_list_of_user_lists:
+  - "{{ adminusers | default([]) }}"
+  - "{{ moreusers | default([]) }}"
+
+admin_root_keys: []
 #admin_root_keys:
 #  - { state: 'present', pubkey: "ssh-rsa KEY admin1@example.com" }
 #  - { state: 'absent', pubkey: "ssh-rsa KEY2 bad_admin2@example.com" }
@@ -23,7 +32,8 @@ adminremove_passwords: False
 ssh_extra_args: "-F ssh.config -o PasswordAuthentication=no"
 # Create groups from a list
 admin_list_of_groups: []
-# 
+#
 #admin_list_of_groups:
 #  - { name: agroup, gid: 27001 }
 #  - { name: bgroup, gid: 27002 }
+...

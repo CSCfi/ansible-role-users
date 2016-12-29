@@ -1,20 +1,24 @@
 ---
   - name: Test login in as current/configured user
-    local_action: shell ssh {{ ssh_extra_args }} {{ inventory_hostname }} whoami
+    local_action: shell ssh {{ssh_extra_args}} {{inventory_hostname}} whoami
     ignore_errors: true
-    always_run: true
+    check_mode: no
     changed_when: login_as_self.rc is not defined
     register: login_as_self
 
-  - name: Use root to login
-    set_fact: remote_user="root" should_become=false
-    always_run: true
+  - name: Use bootstrap_user to login
+    set_fact:
+      remote_user: "{{ bootstrap_user }}"
+      should_become: true
+    check_mode: no
     failed_when: login_as_self.rc is not defined
     when: login_as_self.rc != 0
 
   - name: Use current/configured user to log in
-    set_fact: remote_user="{{ login_as_self.stdout_lines[0] }}" should_become=true
-    always_run: true
+    set_fact:
+      remote_user: "{{login_as_self.stdout_lines[0]}}"
+      should_become: true
+    check_mode: no
     failed_when: login_as_self.rc is not defined
     when: login_as_self.rc == 0
 
@@ -30,31 +34,40 @@
 
     - name: Create groups from a list
       group:
-        name: "{{user.name}}"
-        gid: "{{user.gid | default(omit)}}"
+        name: "{{group.name}}"
+        gid: "{{group.gid | default(omit)}}"
       register: reg_add_group
       when: admin_list_of_groups is defined and admin_list_of_groups.0 is defined
       with_items: "{{ admin_list_of_groups }}"
       loop_control:
-        loop_var: user
-        label: "{{ user.name }}"
+        loop_var: group
+        label: "{{ group.name }}"
 
     - name: Install Python SE Linux support (needed on CentOS7 with Enforcing)
-      package: name=libselinux-python state=present
-      when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int >= 7
+      package:
+        name: libselinux-python
+        state: present
+      when: ansible_os_family == "RedHat" and ansible_distribution_major_version >= 7
 
     - name: Create sudoers file for admin group
-      copy: dest=/etc/sudoers.d/{{ admingroup }} owner=root group=root mode=0440
-            content='%{{ admingroup }} ALL=(ALL) NOPASSWD:ALL'
-            validate='visudo -cf %s'
+      copy:
+        dest: "/etc/sudoers.d/{{admingroup}}"
+        owner: "root"
+        group: "root"
+        mode: 0440
+        content: '%{{admingroup}} ALL=(ALL) NOPASSWD:ALL'
+        validate: 'visudo -cf %s'
       register: reg_add_sudoers_file_admins
       when: admin_sudoers
 
     - name: Ensure /etc/sudoers.d is scanned by sudo
-      lineinfile: dest=/etc/sudoers regexp="#includedir\s+/etc/sudoers.d" line="#includedir /etc/sudoers.d"
+      lineinfile:
+        dest: '/etc/sudoers'
+        regexp: '#includedir\s+/etc/sudoers.d'
+        line: '#includedir /etc/sudoers.d'
       when: admin_sudoers
 
-    - name: Add or remove users from the adminusers and moreusers lists
+    - name: Add or remove users from the lists in admin_list_of_user_lists
       user:
         name: "{{user.name}}"
         state: "{{user.state | default('present')}}"
@@ -62,12 +75,12 @@
         group: "{{user.group | default(omit) }}"
         groups: "{{user.groups | default(omit) }}"
         shell: "{{user.shell | default('/bin/bash')}}"
-      with_items:
-       - "{{ adminusers | default([]) }}"
-       - "{{ moreusers | default([]) }}"
+        comment: "{{user.comment | default(omit)}}"
+        remove: "{{user.remove | default(omit)}}"
+      with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
-        label: "{{ user.name }}"
+        label: "{{ user.name }} {{ user.state }}"
       when: user.name != ansible_user
 
 # Ansible user module fails to modify currently logged in user as it is 
@@ -76,9 +89,7 @@
 
     - name: Add user to groups, workaround for current user failing
       shell: sudo usermod -g {{ user.group }} -G {{ user.groups }} {{ user.name }}
-      with_items:
-       - "{{ adminusers | default([]) }}"
-       - "{{ moreusers | default([]) }}"
+      with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
@@ -93,7 +104,7 @@
       when: reg_add_admin_group.changed and reg_add_sudoers_file_admins.changed and admin_sudoers
 
       # No password. Required for sshd PasswordAuthentication no
-    - name: Remove passwords from both adminusers and moreusers if adminremove_passwords is True
+    - name: Remove passwords from present users if adminremove_passwords is True
       user:
         name: "{{user.name}}"
         password: '*'
@@ -102,35 +113,37 @@
         group: "{{user.group | default(omit) }}"
         groups: "{{user.groups | default(omit) }}"
         shell: "{{user.shell | default('/bin/bash')}}"
-      with_items:
-       - "{{ adminusers | default([]) }}"
-       - "{{ moreusers | default([]) }}"
+        comment: "{{user.comment | default(omit)}}"
+        remove: "{{user.remove | default(omit)}}"
+      with_items: "{{ admin_list_of_user_lists | default([]) }}"
+      when:
+        - adminremove_passwords
+        - user.state == 'present'
+        # Need to exclude current user or otherwise the task fails when not running as root
+        - user.name != ansible_user
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
-# Need to exclude current user or otherwise the task fails
-      when: adminremove_passwords and user.name != ansible_user
 
     - name: Add ssh keys and use key_options if option is used
       authorized_key: user="{{user.name}}" key='{{user.pubkey}}' key_options='{{ user.options | default(omit) }}'
       when: user.state == 'present' and user.pubkey is defined
-      with_items:
-       - "{{ adminusers | default([]) }}"
-       - "{{ moreusers | default([]) }}"
+      with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
 
-    - name: Add or remove ssh keys to root user
+    - name: Add to or remove ssh keys from root user
       authorized_key:
         user: "root"
-        key: '{{user.pubkey}}'
-        state: "{{user.state | default('present')}}"
-      when: user.pubkey is defined
+        key: '{{akey.pubkey}}'
+        state: "{{akey.state | default('present')}}"
+      when: akey.pubkey is defined
       with_items: "{{ admin_root_keys | default([]) }}"
       loop_control:
-        loop_var: user
-        label: "{{ user.name }}"
+        loop_var: akey
+        label: "{{ akey.pubkey }}"
+        # use a loop_var that is not the same as a parameter of the module (key)
 
     # end of block
     remote_user: "{{ remote_user }}"
