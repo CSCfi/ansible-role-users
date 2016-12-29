@@ -22,7 +22,6 @@
     failed_when: login_as_self.rc is not defined
     when: login_as_self.rc == 0
 
-
   # Run the rest as remote_user
   - block:
     - name: Gather facts, we know the username now
@@ -71,9 +70,9 @@
       user:
         name: "{{user.name}}"
         state: "{{user.state | default('present')}}"
-        uid: "{{user.uid | default(omit) }}"
-        group: "{{user.group | default(omit) }}"
-        groups: "{{user.groups | default(omit) }}"
+        uid: "{{user.uid | default(omit)}}"
+        group: "{{user.group | default(omit)}}"
+        groups: "{{user.groups | default(omit)}}"
         shell: "{{user.shell | default('/bin/bash')}}"
         comment: "{{user.comment | default(omit)}}"
         remove: "{{user.remove | default(omit)}}"
@@ -83,12 +82,12 @@
         label: "{{ user.name }} {{ user.state }}"
       when: user.name != ansible_user
 
-# Ansible user module fails to modify currently logged in user as it is 
+# Ansible user module fails to modify currently logged in user as it is
 # attempting to modify things that did not really change.
 # Workaround is to run usermod manually for the currently logged in user.
 
     - name: Add user to groups, workaround for current user failing
-      shell: sudo usermod -g {{ user.group }} -G {{ user.groups }} {{ user.name }}
+      command: sudo usermod -g {{ user.group }} -G {{ user.groups }} {{ user.name }}
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
@@ -109,13 +108,13 @@
         name: "{{user.name}}"
         password: '*'
         state: "{{user.state | default('present')}}"
-        uid: "{{user.uid | default(omit) }}"
-        group: "{{user.group | default(omit) }}"
-        groups: "{{user.groups | default(omit) }}"
+        uid: "{{user.uid | default(omit)}}"
+        group: "{{user.group | default(omit)}}"
+        groups: "{{user.groups | default(omit)}}"
         shell: "{{user.shell | default('/bin/bash')}}"
         comment: "{{user.comment | default(omit)}}"
         remove: "{{user.remove | default(omit)}}"
-      with_items: "{{ admin_list_of_user_lists | default([]) }}"
+      with_items: "{{ admin_list_of_user_lists | default([])}}"
       when:
         - adminremove_passwords
         - user.state == 'present'
@@ -126,7 +125,10 @@
         label: "{{ user.name }}"
 
     - name: Add ssh keys and use key_options if option is used
-      authorized_key: user="{{user.name}}" key='{{user.pubkey}}' key_options='{{ user.options | default(omit) }}'
+      authorized_key:
+        user: "{{user.name}}"
+        key: '{{user.pubkey}}'
+        key_options: '{{user.options | default(omit)}}'
       when: user.state == 'present' and user.pubkey is defined
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
