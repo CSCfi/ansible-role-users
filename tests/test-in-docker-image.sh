@@ -120,10 +120,10 @@ function test_playbook(){
 }
 function extra_tests(){
 
-    echo "TEST: getent passwd | tail"
-    getent passwd|tail
-    echo "TEST: getent group | tail"
-    getent group|tail
+    echo "TEST: getent passwd | tail -20"
+    getent passwd|tail -20
+    echo "TEST: getent group | tail -20"
+    getent group|tail -20
     echo "TEST: cat root users authorized_keys"
     cat /root/.ssh/authorized_keys
     echo "TEST: tree /home"
