@@ -1,31 +1,34 @@
 ---
-  - name: Test login in as current/configured user
+# This role no longer needs to be run with gather_facts disabled (as long as
+# you have a working user account
+  - name: Test login as current/configured user if fact checking is disabled
     local_action: shell ssh {{ssh_extra_args}} {{inventory_hostname}} whoami
-    ignore_errors: true
+    become: no # We don't want to run as root here
     check_mode: no
-    changed_when: login_as_self.rc is not defined
+    changed_when: false # This never changes anything
+    failed_when: false # The ssh failure doesn't imply a failure of this role
     register: login_as_self
 
-  - name: Use bootstrap_user to login
+  - name: Use bootstrap_user to login if current/configured user failed or if fact checking is disabled
     set_fact:
       remote_user: "{{ bootstrap_user }}"
-      should_become: true
     check_mode: no
-    failed_when: login_as_self.rc is not defined
-    when: login_as_self.rc != 0
+    when:
+      - ansible_fqdn is undefined # Test if fact checking has happened already
+      - login_as_self.rc is defined
+      - login_as_self.rc != 0
 
-  - name: Use current/configured user to log in
+  - name: Use the current/configured username
     set_fact:
-      remote_user: "{{login_as_self.stdout_lines[0]}}"
-      should_become: true
-    check_mode: no
-    failed_when: login_as_self.rc is not defined
-    when: login_as_self.rc == 0
+      remote_user: "{{ login_as_self.stdout }}"
+    when:
+      - remote_user is undefined
 
-  # Run the rest as remote_user
+  # Keep this block to avoid ugly diff
   - block:
-    - name: Gather facts, we know the username now
+    - name: Gather facts if we didn't already, we know the username now
       setup:
+      when: ansible_fqdn is undefined
 
     - name: Create admin group
       group: "name={{admingroup}}"
@@ -80,6 +83,19 @@
       loop_control:
         loop_var: user
         label: "{{ user.name }} {{ user.state }}"
+      when: user.name != remote_user
+
+# Ansible user module fails to modify currently logged in user as it is
+# attempting to modify things that did not really change.
+# Workaround is to run usermod manually for the currently logged in user.
+
+    - name: Add user to groups, workaround for current user failing
+      command: sudo usermod -g {{ user.group }} -G {{ user.groups }} {{ user.name }}
+      with_items: "{{ admin_list_of_user_lists | default([]) }}"
+      loop_control:
+        loop_var: user
+        label: "{{ user.name }}"
+      when: user.name == remote_user
 
     - name: Remove wheel group in sudoers if admin group was added and the sudoers.d file for the admin group was added
       lineinfile:
@@ -101,8 +117,12 @@
         shell: "{{user.shell | default('/bin/bash')}}"
         comment: "{{user.comment | default(omit)}}"
         remove: "{{user.remove | default(omit)}}"
-      with_items: "{{ admin_list_of_user_lists | default([]) }}"
-      when: adminremove_passwords and user.state == 'present'
+      with_items: "{{ admin_list_of_user_lists | default([])}}"
+      when:
+        - adminremove_passwords
+        - user.state == 'present'
+        # Need to exclude current user or otherwise the task fails when not running as root
+        - user.name != remote_user
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
@@ -130,6 +150,5 @@
         label: "{{ akey.pubkey }}"
         # use a loop_var that is not the same as a parameter of the module (key)
 
-    # end of block
-    remote_user: "{{ remote_user }}"
-    become: "{{ should_become }}"
+    become: yes
+    # End of block
