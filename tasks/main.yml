@@ -149,3 +149,6 @@
         loop_var: akey
         label: "{{ akey.pubkey }}"
         # use a loop_var that is not the same as a parameter of the module (key)
+
+    become: yes
+    # End of block
