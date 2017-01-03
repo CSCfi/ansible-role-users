@@ -90,7 +90,7 @@
 # Workaround is to run usermod manually for the currently logged in user.
 
     - name: command usermod - remote_user primary group and extra groups, workaround for current user failing
-      command: sudo usermod -g {{ user.group }} -G {{ user.groups }} {{ user.name }}
+      command: usermod -g {{ user.group }} -G {{ user.groups }} {{ user.name }}
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
@@ -101,7 +101,7 @@
 
 # An extra exception if the group key is not defined for the remote_user
     - name: command usermod - remote_user extra groups, workaround for current user failing
-      command: sudo usermod -G {{ user.groups }} {{ user.name }}
+      command: usermod -G {{ user.groups }} {{ user.name }}
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
