@@ -4,9 +4,9 @@
    remote_user: root
    vars:
      - adminusers:
-       - {name: admin6, state: 'present', uid: 5006, group: "{{admingroup}}", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY admin6@example.com" }
+       - {name: admin6, state: 'present', uid: 5006, group: "{{admingroup}}", shell: "{{adminshell}}" }
      - moreusers:
-       - {name: user4, state: 'present', uid: 6004, pubkey: "ssh-rsa KEY user4@example.com" }
+       - {name: user4, state: 'present', uid: 6004 }
    roles:
      - ansible-role-users
 
