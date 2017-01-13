@@ -1,15 +1,17 @@
 ---
- - hosts: localhost
+ - name: first add a few users that we later remove
+   hosts: localhost
    remote_user: root
    vars:
      - adminusers:
-       - {name: admin6, state: 'present', uid: 5006, group: "{{admingroup}}", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY admin6@example.com", groups: "agroup,bgroup" }
+       - {name: admin6, state: 'present', uid: 5006, group: "{{admingroup}}", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY admin6@example.com" }
      - moreusers:
        - {name: user4, state: 'present', uid: 6004, pubkey: "ssh-rsa KEY user4@example.com" }
    roles:
      - ansible-role-users
 
- - hosts: localhost
+ - name: add and remove users
+   hosts: localhost
    remote_user: root
    vars:
      - adminremove_passwords: True
