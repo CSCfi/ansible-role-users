@@ -11,6 +11,7 @@ admin_sudoers: True
 #adminusers:
 #  - {name: admin1, state: 'present', uid: 5001, group: "{{admingroup}}", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY admin1@example.com" }
 #  - {name: bad_admin2, state: 'absent', uid: 5002, group: "{{admingroup}}", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY admin2@example.com" }
+#  - {name: bad_admin3, state: 'present', uid: 5052, group: "{{admingroup}}", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY admin3@example.com", key_state: "absent" }
 #  - {name: rsyncuser1, state: 'present', uid: 5003, group: "{{admingroup}}", groups: "agroup,bgroup", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY rsync1@example.com", options: 'command="/usr/local/bin/rrsync /allow/rrsync/here/directory",no-agent-forwarding,no-port-forwarding,no-pty,no-user-rc,no-X11-forwarding' }
 #
 #moreusers:

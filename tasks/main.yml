@@ -143,11 +143,12 @@
         loop_var: user
         label: "{{ user.name }}"
 
-    - name: Add ssh keys and use key_options if option is used
+    - name: Add or remove ssh keys and use key_options if option is used
       authorized_key:
         user: "{{user.name}}"
         key: '{{user.pubkey}}'
         key_options: '{{user.options | default(omit)}}'
+        state: "{{user.key_state | default(omit)}}"
       when: user.state == 'present' and user.pubkey is defined
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
