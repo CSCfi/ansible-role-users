@@ -27,9 +27,10 @@ admin_root_keys: []
 
 adminremove_passwords: False
 # If you need to point to a hard coded config file or otherwise mess with the
-# manual ssh which runs at the start of this role to test whether to use the 
+# manual ssh which runs at the start of this role to test whether to use the
 # default user or root.
-ssh_extra_args: "-F ssh.config -o PasswordAuthentication=no"
+# Defaults to ssh_args from ansible.cfg or empty string if that isn't set/found
+ssh_extra_args: "{{ ssh_args | default('') }}"
 # Create groups from a list
 admin_list_of_groups: []
 #
