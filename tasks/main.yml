@@ -13,7 +13,7 @@
 
   - name: Use bootstrap_user to login if current/configured user failed or if fact checking is disabled
     set_fact:
-      remote_user: "{{ bootstrap_user }}"
+      ansible_ssh_user: "{{ bootstrap_user }}"
     check_mode: no
     when:
       - ansible_fqdn is undefined # Test if fact checking has happened already
@@ -22,9 +22,9 @@
 
   - name: Use the current/configured username
     set_fact:
-      remote_user: "{{ login_as_self.stdout }}"
+      ansible_ssh_user: "{{ login_as_self.stdout }}"
     when:
-      - remote_user is undefined
+      - ansible_ssh_user is undefined
 
   # Keep this block to avoid ugly diff
   - block:
@@ -85,31 +85,31 @@
       loop_control:
         loop_var: user
         label: "{{ user.name }} {{ user.state }}"
-      when: user.name != remote_user
+      when: user.name != ansible_ssh_user
 
 # Ansible user module fails to modify currently logged in user as it is
 # attempting to modify things that did not really change.
 # Workaround is to run usermod manually for the currently logged in user.
 
-    - name: command usermod - remote_user primary group and extra groups, workaround for current user failing
+    - name: command usermod - ansible_ssh_user primary group and extra groups, workaround for current user failing
       command: sudo usermod -g {{ user.group }} -G {{ user.groups }} {{ user.name }}
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
       when: 
-       - user.name == remote_user
+       - user.name == ansible_ssh_user
        - user.group is defined
 
-# An extra exception if the group key is not defined for the remote_user
-    - name: command usermod - remote_user extra groups, workaround for current user failing
+# An extra exception if the group key is not defined for the ansible_ssh_user
+    - name: command usermod - ansible_ssh_user extra groups, workaround for current user failing
       command: sudo usermod -G {{ user.groups }} {{ user.name }}
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
       when: 
-       - user.name == remote_user
+       - user.name == ansible_ssh_user
        - user.group is undefined
 
 
@@ -138,7 +138,7 @@
         - adminremove_passwords
         - user.state == 'present'
         # Need to exclude current user or otherwise the task fails when not running as root
-        - user.name != remote_user
+        - user.name != ansible_ssh_user
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
