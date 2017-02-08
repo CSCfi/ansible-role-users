@@ -50,6 +50,7 @@
         name: libselinux-python
         state: present
       when: ansible_os_family == "RedHat" and ansible_distribution_major_version >= 7
+      ignore_errors: true # The when statement above is not reliable on hLinux
 
     - name: Create sudoers file for admin group
       copy:
