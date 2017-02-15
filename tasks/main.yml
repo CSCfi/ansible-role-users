@@ -6,8 +6,10 @@
     become: no # We don't want to run as root here
     check_mode: no
     changed_when: false # This never changes anything
-    failed_when: false # The ssh failure doesn't imply a failure of this role
     register: login_as_self
+    failed_when: # The ssh failure doesn't always imply a failure of this role
+      - "{{ login_as_self | failed }}"
+      - "{{ login_as_self.stderr | search('WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!') }}"
 
   - name: Use bootstrap_user to login if current/configured user failed or if fact checking is disabled
     set_fact:
@@ -95,7 +97,7 @@
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
-      when: 
+      when:
        - user.name == ansible_ssh_user
        - user.group is defined
 
