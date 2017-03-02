@@ -32,6 +32,17 @@
       setup:
       when: ansible_fqdn is undefined
 
+  # ansible setup module does not gather logged in users
+    - name: command users - store logged in users in regster reg_logged_in_users
+      command: users
+      check_mode: no
+      changed_when: False
+      register: reg_logged_in_users
+
+    - name: set_fact fact_logged_in_users - to make a json list out of reg_logged_in_users
+      set_fact:
+        fact_logged_in_users: "{{ reg_logged_in_users.stdout.split(' ') | default([]) }}"
+
     - name: Create admin group
       group: "name={{admingroup}}"
       register: reg_add_admin_group
@@ -71,7 +82,7 @@
         line: '#includedir /etc/sudoers.d'
       when: admin_sudoers
 
-    - name: Add or remove users from the lists in admin_list_of_user_lists
+    - name: Add or remove not logged in users from the lists in admin_list_of_user_lists
       user:
         name: "{{user.name}}"
         state: "{{user.state | default('present')}}"
@@ -86,33 +97,28 @@
         loop_var: user
         label: "{{ user.name }} {{ user.state }}"
       when:
-        # Ansible user module fails to modify any logged in user when uid is set
-        # Workaround is to run usermod manually for the currently logged in user.
-        - user.uid is not defined
-        - user.name != ansible_ssh_user
+        - user.name not in fact_logged_in_users
 
-    - name: command usermod - ansible_ssh_user primary group and extra groups, workaround for current user failing
+    - name: command usermod - ansible_ssh_user primary group and extra groups, workaround for logged in users
       command: sudo usermod -g {{ user.group }} -G {{ user.groups }} {{ user.name }}
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
       when:
-       - user.name == ansible_ssh_user
+       - user.name in fact_logged_in_users
        - user.group is defined
-       - user.uid is defined # We only need this to work round above mentioned bug
 
 # An extra exception if the group key is not defined for the ansible_ssh_user
-    - name: command usermod - ansible_ssh_user extra groups, workaround for current user failing
+    - name: command usermod - ansible_ssh_user extra groups, workaround for logged in users
       command: sudo usermod -G {{ user.groups }} {{ user.name }}
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
       when:
-       - user.name == ansible_ssh_user
+       - user.name in fact_logged_in_users
        - user.group is undefined
-
 
     - name: Remove wheel group in sudoers if admin group was added and the sudoers.d file for the admin group was added
       lineinfile:
