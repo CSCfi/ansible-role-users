@@ -81,6 +81,10 @@
         shell: "{{user.shell | default('/bin/bash')}}"
         comment: "{{user.comment | default(omit)}}"
         remove: "{{user.remove | default(omit)}}"
+        # Don't change password after first run.
+        # Work around for:
+        # "update_password is always but a password value is missing"
+        update_password: on_create
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
