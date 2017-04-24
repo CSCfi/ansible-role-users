@@ -81,15 +81,18 @@
         shell: "{{user.shell | default('/bin/bash')}}"
         comment: "{{user.comment | default(omit)}}"
         remove: "{{user.remove | default(omit)}}"
+        # Don't change password after first run.
+        # Work around for:
+        # "update_password is always but a password value is missing"
+        update_password: on_create
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
         label: "{{ user.name }} {{ user.state }}"
-      when: user.name != ansible_ssh_user
-
-# Ansible user module fails to modify currently logged in user as it is
-# attempting to modify things that did not really change.
-# Workaround is to run usermod manually for the currently logged in user.
+      when:
+        # Ansible user module fails to modify any logged in user when uid is set
+        # Workaround is to run usermod manually for the currently logged in user.
+        - user.uid is not defined or (user.uid is defined and user.name == ansible_ssh_user)
 
     - name: command usermod - ansible_ssh_user primary group and extra groups, workaround for current user failing
       command: sudo usermod -g {{ user.group }} -G {{ user.groups }} {{ user.name }}
@@ -100,6 +103,7 @@
       when:
        - user.name == ansible_ssh_user
        - user.group is defined
+       - user.uid is defined # We only need this to work round above mentioned bug
 
 # An extra exception if the group key is not defined for the ansible_ssh_user
     - name: command usermod - ansible_ssh_user extra groups, workaround for current user failing
@@ -108,7 +112,7 @@
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
-      when: 
+      when:
        - user.name == ansible_ssh_user
        - user.group is undefined
 
@@ -127,18 +131,10 @@
         name: "{{user.name}}"
         password: '*'
         state: "{{user.state | default('present')}}"
-        uid: "{{user.uid | default(omit)}}"
-        group: "{{user.group | default(omit)}}"
-        groups: "{{user.groups | default(omit)}}"
-        shell: "{{user.shell | default('/bin/bash')}}"
-        comment: "{{user.comment | default(omit)}}"
-        remove: "{{user.remove | default(omit)}}"
       with_items: "{{ admin_list_of_user_lists | default([])}}"
       when:
         - adminremove_passwords
         - user.state == 'present'
-        # Need to exclude current user or otherwise the task fails when not running as root
-        - user.name != ansible_ssh_user
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
