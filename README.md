@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/CSC-IT-Center-for-Science/ansible-role-users.svg)](https://travis-ci.org/CSC-IT-Center-for-Science/ansible-role-users)
+[![Build Status](https://travis-ci.org/CSCfi/ansible-role-users.svg)](https://travis-ci.org/CSC-IT-Center-for-Science/ansible-role-users)
 # ansible-role-users
 Ansible Role to add local unix users
 
