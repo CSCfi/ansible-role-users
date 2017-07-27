@@ -8,8 +8,8 @@
     changed_when: false # This never changes anything
     register: login_as_self
     failed_when: # The ssh failure doesn't always imply a failure of this role
-      - "{{ login_as_self | failed }}"
-      - "{{ login_as_self.stderr | search('WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!') }}"
+      - "login_as_self | failed"
+      - "login_as_self.stderr | search('WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!')"
 
   - name: Use bootstrap_user to login if current/configured user failed or if fact checking is disabled
     set_fact:
