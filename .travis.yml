@@ -14,6 +14,7 @@ env:
   - IMAGE_BUILD_PLATFORM=stable-centos7
   - IMAGE_BUILD_PLATFORM=devel-centos7
   - IMAGE_BUILD_PLATFORM=epel-centos7
+  - IMAGE_BUILD_PLATFORM=ansible-min-version-centos7
   - IMAGE_BUILD_PLATFORM=pip-ubuntu
 
 install:
@@ -31,9 +32,14 @@ before_script:
   - docklint ${TESTDIR}/${IMAGE_BUILD_PLATFORM}/Dockerfile
   # Build the image
   - docker build -t ${REPO}:${IMAGE_BUILD_PLATFORM} ${TESTDIR}/${IMAGE_BUILD_PLATFORM}/
+  # Find out min_ansible_version
+  - export MIN_ANSIBLE_VERSION=$(grep min_ansible_version meta/main.yml|cut -d ':' -f2|xargs)
+  - echo "INFO min_ansible_version $MIN_ANSIBLE_VERSION"
   # Launch the container
   - docker run --privileged -d -ti -e "container=docker"  -v `pwd`:/$ROLETOTEST -v /sys/fs/cgroup:/sys/fs/cgroup  ${REPO}:${IMAGE_BUILD_PLATFORM}  /usr/sbin/init
   - DOCKER_CONTAINER_ID=$(docker ps | grep ${IMAGE_BUILD_PLATFORM} | awk '{print $1}')
+  # If ansible-min-version install it with pip
+  - if [ "$IMAGE_BUILD_PLATFORM" == "ansible-min-version-centos7" ]; then docker exec -ti $DOCKER_CONTAINER_ID /bin/sh -c "/usr/bin/pip install ansible==$MIN_ANSIBLE_VERSION"; fi
   - docker logs $DOCKER_CONTAINER_ID
 script:
   # Testing of this ansible-role:
