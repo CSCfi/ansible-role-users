@@ -15,6 +15,7 @@ env:
   - IMAGE_BUILD_PLATFORM=devel-centos7
   - IMAGE_BUILD_PLATFORM=epel-centos7
   - IMAGE_BUILD_PLATFORM=devel-ubuntu
+  - IMAGE_BUILD_PLATFORM=ansible-min-version-centos7
 
 install:
   - npm install -g validate-dockerfile
