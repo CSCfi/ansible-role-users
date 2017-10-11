@@ -16,6 +16,9 @@ RUN yum clean all && \
 
 RUN mkdir /etc/ansible/
 RUN echo -e '[local]\nlocalhost' > /etc/ansible/hosts
-RUN pip install ansible==2.2.3.0
+# Not installing ansible in the Dockerbuild phase
+#  instead for this Dockerfile we outside ask the ansible-role which
+#  is the minimum supported ansible version and install that.
+#RUN pip install ansible==2.2.3.0
 
 CMD ["/bin/bash"]
