@@ -91,8 +91,8 @@
         label: "{{ user.name }} {{ user.state }}"
       when:
         # Ansible user module fails to modify any logged in user when uid is set
-        # Workaround is to run usermod manually for the currently logged in user.
-        - user.uid is not defined or (user.uid is defined and user.name == ansible_ssh_user)
+        # Workaround is to run usermod manually for ansible_ssh_user
+        - user.uid is not defined or (user.uid is defined and user.name != ansible_ssh_user)
 
     - name: command usermod - ansible_ssh_user primary group and extra groups, workaround for current user failing
       command: sudo usermod -g {{ user.group }} -G {{ user.groups }} {{ user.name }}
