@@ -16,8 +16,7 @@
       ansible_ssh_user: "{{ bootstrap_user }}"
     check_mode: no
     when:
-      - ansible_fqdn is undefined # Test if fact checking has happened already
-      - login_as_self.rc is defined
+      - login_as_self is defined
       - login_as_self.rc != 0
 
   - name: Use the current/configured username
