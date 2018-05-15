@@ -128,6 +128,8 @@ function extra_tests(){
     cat /root/.ssh/authorized_keys
     echo "TEST: tree /home"
     tree /home
+    echo "TEST: ls non-default homedir location"
+    ls -l /var/lib/
 }
 
 
