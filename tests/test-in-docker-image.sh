@@ -122,6 +122,8 @@ function extra_tests(){
 
     echo "TEST: getent passwd | tail -20"
     getent passwd|tail -20
+    echo "TEST: getent shadow | tail -20"
+    getent shadow|tail -20
     echo "TEST: getent group | tail -20"
     getent group|tail -20
     echo "TEST: cat root users authorized_keys"

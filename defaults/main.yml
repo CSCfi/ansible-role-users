@@ -27,6 +27,9 @@ admin_root_keys: []
 #  - { state: 'absent', pubkey: "ssh-rsa KEY2 bad_admin2@example.com" }
 
 adminremove_passwords: False
+# List of users to remove passwords for
+admin_list_of_user_lists_remove_passwords: "{{ admin_list_of_user_lists }}"
+
 # If you need to point to a hard coded config file or otherwise mess with the
 # manual ssh which runs at the start of this role to test whether to use the
 # default user or root.
