@@ -94,7 +94,7 @@
         comment: "{{user.comment | default(omit)}}"
         home: "{{user.home | default(omit)}}"
         password: "{{user.password | default(omit)}}"
-        create_home: "{{user.create_home | default(omit)}}"
+        createhome: "{{user.create_home | default(omit)}}"
         remove: "{{user.remove | default(omit)}}"
         # Don't change password after first run.
         # Work around for:
