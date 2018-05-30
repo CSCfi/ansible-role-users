@@ -93,7 +93,8 @@
         shell: "{{user.shell | default('/bin/bash')}}"
         comment: "{{user.comment | default(omit)}}"
         home: "{{user.home | default(omit)}}"
-        create_home: "{{user.create_home | default(omit)}}"
+        password: "{{user.password | default(omit)}}"
+        createhome: "{{user.create_home | default(omit)}}"
         remove: "{{user.remove | default(omit)}}"
         # Don't change password after first run.
         # Work around for:
@@ -146,7 +147,7 @@
         name: "{{user.name}}"
         password: '*'
         state: "{{user.state | default('present')}}"
-      with_items: "{{ admin_list_of_user_lists | default([])}}"
+      with_items: "{{ admin_list_of_user_lists_remove_passwords | default([])}}"
       when:
         - adminremove_passwords
         - user.state == 'present'
