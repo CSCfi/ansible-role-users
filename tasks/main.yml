@@ -8,7 +8,7 @@
     changed_when: false # This never changes anything
     register: login_as_self
     failed_when: # The ssh failure doesn't always imply a failure of this role
-      - "login_as_self | failed"
+      - "login_as_self is failed"
       - "login_as_self.stderr | search('WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!')"
 
   - name: Use bootstrap_user to login if current/configured user failed or if fact checking is disabled
@@ -25,9 +25,9 @@
     when:
       - ansible_ssh_user is undefined
 
-    # This list includes the user used to ssh into the system
-  - name: command - grab a space separated string of users with the users linux command
-    command: users
+    # increase character limit to 30 characters for user column, remove headers, show first column unique entries and replace newline with space
+  - name: shell - grab a space separated string of all users running processes
+    shell: ps axo user:30|grep -v -e ^root -e ^USER|cut -d " " -f1|uniq|tr "\n" " "
     check_mode: no
     changed_when: false # This never changes anything
     register: reg_ansible_logged_in_users
