@@ -96,6 +96,9 @@
         password: "{{user.password | default(omit)}}"
         createhome: "{{user.create_home | default(omit)}}"
         remove: "{{user.remove | default(omit)}}"
+        generate_ssh_key: "{{user.generate_ssh_key | default(omit)}}"
+        ssh_key_passphrase: "{{user.ssh_key_passphrase | default(omit)}}"
+        ssh_key_type: "{{user.ssh_key_type | default(omit)}}"
         # Don't change password after first run.
         # Work around for:
         # "update_password is always but a password value is missing"
