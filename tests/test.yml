@@ -50,7 +50,7 @@
        - {name: user7, state: 'absent', uid: 6007, pubkey: "ssh-rsa KEY6 user6@example.com", options: 'command="/usr/local/bin/rrsync /allow/rrsync/here/directory",no-agent-forwarding,no-port-forwarding,no-pty,no-user-rc,no-X11-forwarding' }
        - {name: user8, state: 'absent', uid: 6008, comment: "comment1", remove: "yes" }
        - {name: user9, state: 'present', uid: 6009 }
-       - {name: user10, state: 'present', uid: 60000 }
+       - {name: user10, state: 'present', uid: 60000, group: "{{admingroup}}" }
      - anotheruserlisthere:
        - {name: training1, state: 'present', uid: 7001, shell: "{{adminshell}}" }
        - {name: training2, state: 'present', uid: 7002 }
