@@ -1,5 +1,5 @@
 ---
- - name: first add a few users that we later remove, and one with a password we later do not remove
+ - name: first add a few users that we later remove, and one with a password we later do not remove and launch a sleepscreen
    hosts: localhost
    remote_user: root
    vars:
@@ -8,8 +8,19 @@
      - moreusers:
        - {name: user4, state: 'present', uid: 6004 }
        - {name: user9, state: 'present', uid: 6009, password: "$6$1lg6WhuGmrG1QE5X$O9xMkmnsULiqDeZ3DdSKQrHcGeCW4U7FKLhWQIRQGKsG5sslmWUcgQLHz.T/lNqJhVmk8m9OJ2Iv.ogJn7xNr/" }
+       - {name: user10, state: 'present', uid: 6010, group: "{{admingroup}}" }
+       - {name: user11, state: 'present', uid: 6011, group: "{{admingroup}}", generate_ssh_key: "yes" }
    roles:
      - ansible-role-users
+   post_tasks:
+     - name: install screen
+       package:
+         name: screen
+         state: present
+     - name: launch a screen as user10 and then later we try to change a group for this user
+       command: screen -S changemyuid -d -m sleep 600
+       become_user: user10
+       become: True
 
  - name: add and remove users
    hosts: localhost
@@ -40,6 +51,7 @@
        - {name: user7, state: 'absent', uid: 6007, pubkey: "ssh-rsa KEY6 user6@example.com", options: 'command="/usr/local/bin/rrsync /allow/rrsync/here/directory",no-agent-forwarding,no-port-forwarding,no-pty,no-user-rc,no-X11-forwarding' }
        - {name: user8, state: 'absent', uid: 6008, comment: "comment1", remove: "yes" }
        - {name: user9, state: 'present', uid: 6009 }
+       - {name: user10, state: 'present', uid: 6010, group: "{{admingroup}}", groups: "agroup" }
      - anotheruserlisthere:
        - {name: training1, state: 'present', uid: 7001, shell: "{{adminshell}}" }
        - {name: training2, state: 'present', uid: 7002 }
