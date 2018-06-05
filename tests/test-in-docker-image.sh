@@ -128,8 +128,8 @@ function extra_tests(){
     getent group|tail -20
     echo "TEST: cat root users authorized_keys"
     cat /root/.ssh/authorized_keys
-    echo "TEST: tree /home"
-    tree /home
+    echo "TEST: tree -a /home"
+    tree -a /home
     echo "TEST: ls non-default homedir location"
     ls -l /var/lib/
 }
