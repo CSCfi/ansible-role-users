@@ -1,5 +1,5 @@
 ---
- - name: first add a few users that we later remove, and one with a password we later do not remove and launch a sleepscreen 
+ - name: first add a few users that we later remove, and one with a password we later do not remove and launch a sleepscreen
    hosts: localhost
    remote_user: root
    vars:
