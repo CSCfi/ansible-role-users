@@ -113,7 +113,7 @@
         - user.uid is not defined or (user.uid is defined and user.name not in admin_logged_in_users)
 
     - name: command usermod - primary group and extra groups, workaround for logged in users
-      command: sudo usermod -g {{ user.group }} -G {{ user.groups }} {{ user.name }}
+      command: usermod -g {{ user.group }} -G {{ user.groups }} {{ user.name }}
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
@@ -126,7 +126,7 @@
 
     # An extra exception if the group key is not defined for the logged in user
     - name: command usermod - extra groups, workaround for logged in user
-      command: sudo usermod -G {{ user.groups }} {{ user.name }}
+      command: usermod -G {{ user.groups }} {{ user.name }}
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
