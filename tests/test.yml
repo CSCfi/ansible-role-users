@@ -23,3 +23,13 @@
        become: True
 
  - import_playbook: test_idempotency.yml
+
+ - name: finally we kill the screen with user10 so we can later test idempotency
+   hosts: localhost
+   remote_user: root
+   post_tasks:
+     - name: kill the user10 screen
+       shell: "kill $(screen -ls|grep [c]hangemyuid|cut -d '.' -f1|xargs)"
+       become_user: user10
+       become: True
+...

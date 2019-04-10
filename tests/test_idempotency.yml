@@ -1,5 +1,4 @@
 ---
-
  - name: add and remove users
    hosts: localhost
    remote_user: root
@@ -48,3 +47,4 @@
      
    roles:
      - ansible-role-users
+...
