@@ -74,14 +74,14 @@
         content: '%{{admingroup}} ALL=(ALL) NOPASSWD:ALL'
         validate: 'visudo -cf %s'
       register: reg_add_sudoers_file_admins
-      when: admin_sudoers
+      when: admin_sudoers|bool
 
     - name: Ensure /etc/sudoers.d is scanned by sudo
       lineinfile:
         dest: '/etc/sudoers'
         regexp: '#includedir\s+/etc/sudoers.d'
         line: '#includedir /etc/sudoers.d'
-      when: admin_sudoers
+      when: admin_sudoers|bool
 
     - name: Add or remove users from the lists in admin_list_of_user_lists
       user:
@@ -142,7 +142,7 @@
         state: absent
         regexp: "^%wheel"
         validate: 'visudo -cf %s'
-      when: reg_add_admin_group.changed and reg_add_sudoers_file_admins.changed and admin_sudoers
+      when: reg_add_admin_group.changed and reg_add_sudoers_file_admins.changed and admin_sudoers|bool
 
     # No password. Required for sshd PasswordAuthentication no
     - name: Remove passwords from present users if adminremove_passwords is True
@@ -152,7 +152,7 @@
         state: "{{user.state | default('present')}}"
       with_items: "{{ admin_list_of_user_lists_remove_passwords | default([])}}"
       when:
-        - adminremove_passwords
+        - adminremove_passwords|bool
         - user.state == 'present'
       loop_control:
         loop_var: user
