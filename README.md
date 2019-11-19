@@ -5,7 +5,7 @@ Ansible Role to add local unix users
 
 # Calling the role
 
-When you call the role, you may set gather_facts to false.
+When you call the role, you can set gather_facts to false if you want. It should work without though.
 
 <pre>
 - name: Configure users
