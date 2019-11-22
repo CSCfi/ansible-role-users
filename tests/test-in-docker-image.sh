@@ -13,6 +13,8 @@ ANSIBLE_VAR=""
 ANSIBLE_INVENTORY="tests/inventory"
 ANSIBLE_PLAYBOOk="tests/test.yml"
 ANSIBLE_PLAYBOOK_IDEMPOTENCY="tests/test_idempotency.yml"
+ANSIBLE_PLAYBOOK_FACTLESS="tests/test_factless.yml"
+ANSIBLE_PLAYBOOK_ID_FACTLESS="tests/test_id_factless.yml"
 ANSIBLE_LOG_LEVEL=""
 #ANSIBLE_LOG_LEVEL="-v"
 ANSIBLE_CHECK_LOG_LEVEL=""
@@ -121,6 +123,15 @@ function test_playbook(){
 
     echo "TEST: 3 idempotence test! Same as previous (only second play in test.yml) but now grep for changed=0.*failed=0"
     ansible-playbook -i ${ANSIBLE_INVENTORY} ${ANSIBLE_PLAYBOOK_IDEMPOTENCY} ${ANSIBLE_LOG_LEVEL} --connection=local ${SUDO_OPTION} ${ANSIBLE_EXTRA_VARS} | grep -q 'changed=0.*failed=0' && (echo 'Idempotence test: pass' ) || (echo 'Idempotence test: fail' && exit 1)
+
+    echo "TEST: 4 factless! ansible-playbook -i ${ANSIBLE_INVENTORY} ${ANSIBLE_PLAYBOOK_FACTLESS} ${ANSIBLE_LOG_LEVEL} --connection=local ${SUDO_OPTION} ${ANSIBLE_EXTRA_VARS}"
+    # instead of having multiple very similar playbooks we copy them and modify them with sed
+    cp -v ${ANSIBLE_PLAYBOOk} ${ANSIBLE_PLAYBOOK_FACTLESS}
+    sed -i '/hosts: localhost/a \ \ \ gather_facts: False' ${ANSIBLE_PLAYBOOK_FACTLESS}
+    cp -v ${ANSIBLE_PLAYBOOK_IDEMPOTENCY} ${ANSIBLE_PLAYBOOK_ID_FACTLESS}
+    sed -i '/hosts: localhost/a \ \ \ gather_facts: False' ${ANSIBLE_PLAYBOOK_ID_FACTLESS}
+    sed -i 's/test_idempotency.yml/test_id_factless.yml/' ${ANSIBLE_PLAYBOOK_FACTLESS}
+    ansible-playbook -i ${ANSIBLE_INVENTORY} ${ANSIBLE_PLAYBOOK_FACTLESS} ${ANSIBLE_LOG_LEVEL} --connection=local ${SUDO_OPTION} ${ANSIBLE_EXTRA_VARS}
 }
 function extra_tests(){
 

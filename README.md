@@ -1,10 +1,11 @@
 [![Build Status](https://travis-ci.org/CSCfi/ansible-role-users.svg)](https://travis-ci.org/CSCfi/ansible-role-users)
+[![Galaxy Role](https://img.shields.io/badge/ansible--galaxy-ansible--role--users-blue)](https://galaxy.ansible.com/CSCfi/ansible-role-users)
 # ansible-role-users
 Ansible Role to add local unix users
 
 # Calling the role
 
-When you call the role, you need to set gather_facts to false.
+When you call the role, you can set gather_facts to false if you want. It should work without though.
 
 <pre>
 - name: Configure users
