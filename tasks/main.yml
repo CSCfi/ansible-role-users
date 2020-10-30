@@ -2,9 +2,10 @@
 # This role no longer needs to be run with gather_facts disabled (as long as
 # you have a working user account
   - name: Test login as current/configured user if fact checking is disabled. Timeout 10s.
-    command: timeout 10 ssh {{ ssh_extra_args }} {{ inventory_hostname }} whoami
+    command: ssh {{ ssh_extra_args }} {{ inventory_hostname }} whoami
     become: no # We don't want to run as root here
     check_mode: no
+    async: 10 # instead of timeout  before ssh, since it is not quaranteed to exist everywhere
     changed_when: false # This never changes anything
     register: login_as_self
     failed_when: # The ssh failure doesn't always imply a failure of this role
