@@ -166,7 +166,7 @@
         label: "{{ user.name }}"
 
     - name: Add or remove ssh keys and use key_options if option is used
-      authorized_key:
+      ansible.posix.authorized_key:
         user: "{{ user.name }}"
         key: '{{ user.pubkey }}'
         key_options: '{{ user.options | default(omit) }}'
@@ -178,7 +178,7 @@
         label: "{{ user.name }}"
 
     - name: Add to or remove ssh keys from root user
-      authorized_key:
+      ansible.posix.authorized_key:
         user: "root"
         key: '{{ akey.pubkey }}'
         state: "{{ akey.state | default('present') }}"
