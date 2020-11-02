@@ -19,6 +19,9 @@ admin_sudoers: True
 
 admin_list_of_user_lists: "{{ adminusers |default([]) + moreusers |default([]) }}"
 
+# Whether to remove all other non-specified keys from the authorized_keys file.
+pubkey_exclusive_default: false
+
 admin_root_keys: []
 #admin_root_keys:
 #  - { state: 'present', pubkey: "ssh-rsa KEY admin1@example.com" }

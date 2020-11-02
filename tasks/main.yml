@@ -175,7 +175,7 @@
         key: '{{ user.pubkey }}'
         key_options: '{{ user.options | default(omit) }}'
         state: "{{ user.key_state | default(omit) }}"
-        exclusive: "{{ user.pubkey_exclusive | default(omit) }}"
+        exclusive: "{{ user.pubkey_exclusive | default(pubkey_exclusive_default) }}"
       when: user.state == 'present' and user.pubkey is defined
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
