@@ -17,9 +17,7 @@ admin_sudoers: True
 #moreusers:
 #  - {name: someotheruser1, state: 'present', uid: 6001, shell: "{{adminshell}}" }
 
-admin_list_of_user_lists:
-  - "{{ adminusers | default([]) }}"
-  - "{{ moreusers | default([]) }}"
+admin_list_of_user_lists: "{{ adminusers |default([]) + moreusers |default([]) }}"
 
 admin_root_keys: []
 #admin_root_keys:
@@ -30,9 +28,11 @@ adminremove_passwords: False
 # List of users to remove passwords for
 admin_list_of_user_lists_remove_passwords: "{{ admin_list_of_user_lists }}"
 
-# If you want to use some additional flags when checking ssh connection. You
-# might want to use the same value as `ssh_args` in ansible.cfg
-ssh_extra_args: ""
+# If you need to point to a hard coded config file or otherwise mess with the
+# manual ssh which runs at the start of this role to test whether to use the
+# default user or root.
+# Defaults to ssh_args from ansible.cfg or empty string if that isn't set/found
+ssh_extra_args: "{{ ssh_args | default('') }}"
 # Create groups from a list
 admin_list_of_groups: []
 #

@@ -72,7 +72,7 @@
         name: python3-libselinux
         state: present
       when: ansible_os_family == "RedHat" and ansible_distribution_major_version >= "8"
-      
+
     - name: Create sudoers file for admin group
       copy:
         dest: "/etc/sudoers.d/{{ admingroup }}"
@@ -178,17 +178,17 @@
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
-
     - name: Add or remove ssh keys and use key_options if user have multiple keys
       authorized_key:
         user: "{{ item[0].name }}"
-        key: '{{ item[1].pubkey }}'
-        key_options: '{{ itme[1].options | default(omit) }}'
+        key: "{{ item[1].pubkey }}"
+        key_options: "{{ item[1].options | default(omit) }}"
         state: "{{ item[1].key_state | default(omit) }}"
-      when: user.state == 'present' and user.pubkeys is defined
+      when: item[0].state == 'present'
       with_subelements:
-         - "{{ admin_list_of_user_lists | default([])}}"
-         - pubkeys: {'skip_missing': True}
+         - "{{ admin_list_of_user_lists }}"
+         - pubkeys
+         - skip_missing: true
 
     - name: Add to or remove ssh keys from root user
       authorized_key:
