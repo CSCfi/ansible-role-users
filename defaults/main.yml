@@ -28,11 +28,10 @@ adminremove_passwords: False
 # List of users to remove passwords for
 admin_list_of_user_lists_remove_passwords: "{{ admin_list_of_user_lists }}"
 
-# If you need to point to a hard coded config file or otherwise mess with the
-# manual ssh which runs at the start of this role to test whether to use the
-# default user or root.
-# Defaults to ssh_args from ansible.cfg or empty string if that isn't set/found
-ssh_extra_args: "{{ ssh_args | default('') }}"
+# If you need to add some ssh flags for checking the ssh connection it should
+# be done in this variable, it could be the same as what you have configured
+# in ansible.cfg
+ssh_extra_args: ""
 # Create groups from a list
 admin_list_of_groups: []
 #
