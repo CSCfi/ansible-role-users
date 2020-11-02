@@ -10,11 +10,11 @@ RUN yum clean all && \
     yum -y install PyYAML python-jinja2 python-httplib2 python-keyczar python-paramiko python-setuptools git python-pip \
     yum -y install libffi-devel python-cffi && \
     pip install passlib dnspython && \
-    ## We leave gcc, headers and ffi etc. into the system because of
-    ## the ansible build that will happen in the before_script phase.
-    ## This is probably not the most lightweitght method to do this.
-    #yum -y remove $(rpm -qa "*-devel") && \
-    #yum -y groupremove "Development tools" && \
+## We leave gcc, headers and ffi etc. into the system because of
+## the ansible build that will happen in the before_script phase.
+## This is probably not the most lightweitght method to do this.
+#    yum -y remove $(rpm -qa "*-devel") && \
+#    yum -y groupremove "Development tools" && \
     yum -y autoremove && \
     yum -y install bzip2 file findutils gem git gzip hg procps-ng svn sudo tar tree which unzip xz zip
 
