@@ -1,10 +1,7 @@
 ---
 # This role no longer needs to be run with gather_facts disabled (as long as
 # you have a working user account
-  - name: Test login as current/configured user if fact checking is disabled.
-    # There is no builtin timeout function in ansible and all OS (OSX) does not
-    # come with timeoout built in. Maybe worth considering async or wait for
-    # ansible 2.10.
+  - name: Test login as current/configured user if fact checking is disabled. Timeout 10s.
     command: ssh {{ ssh_extra_args }} {{ inventory_hostname }} whoami
     become: no # We don't want to run as root here
     check_mode: no
