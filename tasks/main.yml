@@ -166,11 +166,23 @@
         key: '{{ user.pubkey }}'
         key_options: '{{ user.options | default(omit) }}'
         state: "{{ user.key_state | default(omit) }}"
+        exclusive: "{{ user.pubkey_exclusive | default(pubkey_exclusive_default) }}"
       when: user.state == 'present' and user.pubkey is defined
       with_items: "{{ admin_list_of_user_lists | default([]) }}"
       loop_control:
         loop_var: user
         label: "{{ user.name }}"
+    - name: Add or remove ssh keys and use key_options if user have multiple keys
+      authorized_key:
+        user: "{{ item[0].name }}"
+        key: "{{ item[1].pubkey }}"
+        key_options: "{{ item[1].options | default(omit) }}"
+        state: "{{ item[1].key_state | default(omit) }}"
+      when: item[0].state == 'present'
+      with_subelements:
+         - "{{ admin_list_of_user_lists }}"
+         - pubkeys
+         - skip_missing: true
 
     - name: Add to or remove ssh keys from root user
       authorized_key:

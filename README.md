@@ -35,11 +35,9 @@ adminremove_passwords: false
 
 # multiple ssh keys to a single user
 
-Can be done with this trick:
 <pre>
-newline: "\n"
 
-  - { name: multisshkeyuser, uid: 5004, group: "{{admingroup}}", groups: "agroup,bgroup", state: "present", shell: "{{adminshell}}", pubkey: "ssh-rsa KEY1 {{ newline }} ssh-rsa KEY2 {{ newline }} ssh-rsa KEY3" }
+  - { name: multisshkeyuser, uid: 5004, group: "{{admingroup}}", groups: "agroup,bgroup", state: "present", shell: "{{adminshell}}", pubkeys: [ { pubkey: "ssh-rsa KEY1" }, { pubkey: "ssh-rsa KEY2" }, { pubkey: "ssh-rsa KEY3", key_state: 'absent'  }
 
 </pre>
 
