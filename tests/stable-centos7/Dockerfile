@@ -13,7 +13,8 @@ RUN yum clean all && \
     yum -y groupremove "Development tools" && \
     yum -y autoremove && \
     yum -y install bzip2 file findutils gem git gzip hg procps-ng svn sudo tar tree which unzip xz zip && \
-    python -m pip install -U pip 
+    pip install --upgrade "pip < 21.0"
+
 
 RUN mkdir /etc/ansible/
 RUN echo -e '[local]\nlocalhost' > /etc/ansible/hosts
