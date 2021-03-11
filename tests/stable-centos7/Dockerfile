@@ -2,7 +2,7 @@
 FROM centos:centos7
 MAINTAINER James Cuzella <james.cuzella@lyraphase.com>
 RUN yum clean all && \
-    sestatus && \
+    /sbin/sestatus && \
     yum -y install epel-release && \
     yum -y groupinstall "Development tools" && \
     yum -y install python-devel MySQL-python sshpass && \
