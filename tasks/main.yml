@@ -34,12 +34,6 @@
     changed_when: false # This never changes anything
     register: reg_ansible_logged_in_users
 
-  - name: set a fact an ansible list of unique and logged in users
-    check_mode: no
-    changed_when: false # This never changes anything
-    set_fact:
-      admin_logged_in_users: "{{ reg_ansible_logged_in_users.stdout.split(' ')|unique }}"
-
   # Keep this block to avoid ugly diff
   - block:
     - name: Gather facts if we didn't already, we know the username now
@@ -103,34 +97,6 @@
       loop_control:
         loop_var: user
         label: "{{ user.name }} {{ user.state }}"
-      when:
-        # Ansible user module and usermod command fail to modify any logged in user when uid is set
-        # Workaround is to run usermod manually for logged in users and not set UID even if it is defined
-        - user.uid is not defined or (user.uid is defined and user.name not in admin_logged_in_users)
-
-    - name: command usermod - primary group and extra groups, workaround for logged in users
-      command: usermod -g {{ user.group }} -G {{ user.groups }} {{ user.name }}
-      with_items: "{{ admin_list_of_user_lists | default([]) }}"
-      loop_control:
-        loop_var: user
-        label: "{{ user.name }}"
-      when:
-       - user.name in admin_logged_in_users
-       - user.group is defined
-       - user.groups is defined
-       - user.uid is defined # We only need this usermod command to set group and groups for any logged in users
-
-    # An extra exception if the group key is not defined for the logged in user
-    - name: command usermod - extra groups, workaround for logged in user
-      command: usermod -G {{ user.groups }} {{ user.name }}
-      with_items: "{{ admin_list_of_user_lists | default([]) }}"
-      loop_control:
-        loop_var: user
-        label: "{{ user.name }}"
-      when:
-       - user.name in admin_logged_in_users
-       - user.group is undefined
-       - user.groups is defined
 
     - name: Remove wheel group in sudoers if admin group was added and the sudoers.d file for the admin group was added
       lineinfile:
