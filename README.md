@@ -41,10 +41,6 @@ adminremove_passwords: false
 
 </pre>
 
-# Caveats
-
-Modifying a logged in user's UID does not work. Don't do it. The role anticipates this and only modifies group and groups for those users.
-
 # License
 
 MIT
