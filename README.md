@@ -37,13 +37,15 @@ adminremove_passwords: false
 
 <pre>
 
-  - { name: multisshkeyuser, uid: 5004, group: "{{admingroup}}", groups: "agroup,bgroup", state: "present", shell: "{{adminshell}}", pubkeys: [ { pubkey: "ssh-rsa KEY1" }, { pubkey: "ssh-rsa KEY2" }, { pubkey: "ssh-rsa KEY3", key_state: 'absent'  }
+  - { name: multisshkeyuser, uid: 5004, group: "{{admingroup}}", groups: "agroup,bgroup", state: "present", shell: "{{adminshell}}", pubkeys: [ { pubkey: "ssh-rsa KEY1" }, { pubkey: "ssh-rsa KEY2" }, { pubkey: "ssh-rsa KEY3", key_state: 'absent' } ] }
 
 </pre>
 
 # Caveats
 
 Modifying a logged in user's UID does not work. Don't do it. The role anticipates this and only modifies group and groups for those users.
+
+groups key of a user: This can be several groups, but it currently needs to be a string or the usermod command becomes unhappy.
 
 # License
 
@@ -54,3 +56,4 @@ MIT
  - https://github.com/martbhell
  - https://github.com/peterjenkins1
  - https://github.com/khappone
+ - https://github.com/oscarkraemer
