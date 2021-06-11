@@ -54,7 +54,6 @@
       group:
         name: "{{ group.name }}"
         gid: "{{ group.gid | default(omit) }}"
-      register: reg_add_group
       when: admin_list_of_groups is defined and admin_list_of_groups.0 is defined
       with_items: "{{ admin_list_of_groups }}"
       loop_control:
