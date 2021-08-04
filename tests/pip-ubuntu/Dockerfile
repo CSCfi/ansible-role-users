@@ -37,6 +37,7 @@ RUN \
   apt-get install -y libyaml-dev python-dev python-jinja2 python-httplib2 python-keyczar python-paramiko python-setuptools python3-setuptools && \
   apt-get install -y libffi-dev libssl-dev openssh-client && \
   pip install --upgrade "pip < 21.0" && \
+  pip install pbr && \
   pip install pyrax pysphere boto passlib dnspython
 
 RUN mkdir /etc/ansible/
