@@ -30,6 +30,7 @@
        - {name: user8, state: 'absent', uid: 6008, comment: "comment1", remove: "yes" }
        - {name: user9, state: 'present', uid: 6009 }
        - {name: user10, state: 'present', uid: 6010, group: "{{admingroup}}", groups: "agroup" }
+       - {name: user11, state: 'present', uid: 6011, group: "{{admingroup}}", groups: ["agroup","bgroup"] }
      - anotheruserlisthere:
        - {name: training1, state: 'present', uid: 7001, shell: "{{adminshell}}" }
        - {name: training2, state: 'present', uid: 7002 }
