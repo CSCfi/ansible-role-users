@@ -3,6 +3,9 @@
    hosts: localhost
    remote_user: root
    vars:
+     - admin_list_of_groups:
+       - { name: agroup, gid: 27001 }
+       - { name: bgroup, gid: 27002 }
      - adminusers:
        - {name: admin6, state: 'present', uid: 5006, group: "{{admingroup}}", shell: "{{adminshell}}" }
      - moreusers:
