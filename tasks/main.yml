@@ -117,6 +117,7 @@
        - user.name in admin_logged_in_users
        - user.group is defined
        - user.groups is defined
+       - user.groups|type_debug == 'AnsibleUnsafeText'
        - user.uid is defined # We only need this usermod command to set group and groups for any logged in users
 
     # An extra exception if the group key is not defined for the logged in user
@@ -130,6 +131,7 @@
        - user.name in admin_logged_in_users
        - user.group is undefined
        - user.groups is defined
+       - user.groups|type_debug == 'AnsibleUnsafeText'
 
     - name: Remove wheel group in sudoers if admin group was added and the sudoers.d file for the admin group was added
       lineinfile:
