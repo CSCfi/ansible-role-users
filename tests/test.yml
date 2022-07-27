@@ -3,13 +3,16 @@
    hosts: localhost
    remote_user: root
    vars:
+     - admin_list_of_groups:
+       - { name: agroup, gid: 27001 }
+       - { name: bgroup, gid: 27002 }
      - adminusers:
        - {name: admin6, state: 'present', uid: 5006, group: "{{admingroup}}", shell: "{{adminshell}}" }
      - moreusers:
        - {name: user4, state: 'present', uid: 6004 }
        - {name: user9, state: 'present', uid: 6009, password: "$6$1lg6WhuGmrG1QE5X$O9xMkmnsULiqDeZ3DdSKQrHcGeCW4U7FKLhWQIRQGKsG5sslmWUcgQLHz.T/lNqJhVmk8m9OJ2Iv.ogJn7xNr/" }
        - {name: user10, state: 'present', uid: 6010, group: "{{admingroup}}" }
-       - {name: user11, state: 'present', uid: 6011, group: "{{admingroup}}", generate_ssh_key: "yes" }
+       - {name: user11, state: 'present', uid: 6011, group: "{{admingroup}}", generate_ssh_key: "yes", groups: ["bgroup"]  }
    roles:
      - ansible-role-users
    post_tasks:
@@ -20,6 +23,10 @@
      - name: launch a screen as user10 and then later we try to change a group for this user
        command: screen -S changemyuid -d -m sleep 600
        become_user: user10
+       become: True
+     - name: launch a screen as user11 and then later we try to add a group from a list of groups
+       command: screen -S changemygroups11 -d -m sleep 600
+       become_user: user11
        become: True
 
  - import_playbook: test_idempotency.yml
