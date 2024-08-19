@@ -2,6 +2,8 @@
 # This role no longer needs to be run with gather_facts disabled (as long as
 # you have a working user account
   - name: Test login as current/configured user if fact checking is disabled. Timeout 10s.
+    vars:
+      ansible_python_interpreter: "{{ansible_playbook_python}}"
     command: ssh {{ ssh_extra_args }} {{ inventory_hostname }} whoami
     become: no # We don't want to run as root here
     check_mode: no
