@@ -40,8 +40,8 @@ before_script:
   # Launch the container
   - docker run --privileged -d -ti -e "container=docker"  -v `pwd`:/$ROLETOTEST -v /sys/fs/cgroup:/sys/fs/cgroup  ${REPO}:${IMAGE_BUILD_PLATFORM}  /usr/sbin/init
   - DOCKER_CONTAINER_ID=$(docker ps | grep ${IMAGE_BUILD_PLATFORM} | awk '{print $1}')
-  # If ansible-min-version install it with pip
-  - if [ "$IMAGE_BUILD_PLATFORM" == "ansible-min-version-centos7" ]; then docker exec -ti $DOCKER_CONTAINER_ID /bin/sh -c "/usr/bin/pip install ansible==$MIN_ANSIBLE_VERSION"; fi
+  # If ansible-min-version install it with yum
+  - if [ "$IMAGE_BUILD_PLATFORM" == "ansible-min-version-centos7" ]; then docker exec -ti $DOCKER_CONTAINER_ID /bin/sh -c "/usr/bin/yum -y install ansible-$MIN_ANSIBLE_VERSION"; fi
   - docker logs $DOCKER_CONTAINER_ID
 script:
   # Testing of this ansible-role:

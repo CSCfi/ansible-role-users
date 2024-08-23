@@ -1,7 +1,9 @@
 # Latest version of centos
 FROM centos:centos7
 MAINTAINER James Cuzella <james.cuzella@lyraphase.com>
-RUN yum clean all && \
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
+    yum clean all && \
     yum -y install epel-release && \
     yum -y groupinstall "Development tools" && \
     yum -y install python-devel MySQL-python sshpass && \
@@ -17,6 +19,6 @@ RUN yum clean all && \
 
 RUN mkdir /etc/ansible/
 RUN echo -e '[local]\nlocalhost' > /etc/ansible/hosts
-RUN pip install "ansible<=2.9.1"
+RUN yum -y install ansible-2.9.27
 
 CMD ["/bin/bash"]
