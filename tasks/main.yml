@@ -10,9 +10,13 @@
     async: 10 # instead of timeout  before ssh, since it is not quaranteed to exist everywhere
     changed_when: false # This never changes anything
     register: login_as_self
-    failed_when: # The ssh failure doesn't always imply a failure of this role
-      - "login_as_self is failed"
-      - "login_as_self.stderr is search('WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!')"
+    failed_when: >
+      login_as_self.stderr is search('Name or service not known')
+      or login_as_self.stderr is search('Could not resolve hostname')
+      or login_as_self.stderr is search('Connection timed out')
+      or login_as_self.stderr is search('Connection refused')
+      or login_as_self.stderr is search('No route to host')
+      or login_as_self.stderr is search('Network is unreachable')
     delegate_to: localhost
 
   - name: Use bootstrap_user to login if current/configured user failed or if fact checking is disabled
