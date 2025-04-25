@@ -11,7 +11,9 @@
     changed_when: false # This never changes anything
     register: login_as_self
     failed_when: >
-      login_as_self.stderr is search('Name or service not known')
+      ( login_as_self is failed and login_as_self.stderr is search('WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!') )
+      or login_as_self.msg is search('Timeout exceeded')
+      or login_as_self.stderr is search('Name or service not known')
       or login_as_self.stderr is search('Could not resolve hostname')
       or login_as_self.stderr is search('Connection timed out')
       or login_as_self.stderr is search('Connection refused')
