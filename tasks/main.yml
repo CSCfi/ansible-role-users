@@ -14,6 +14,13 @@
       - "login_as_self is failed"
       - "login_as_self.stderr is search('WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!')"
     delegate_to: localhost
+    
+  - name: Check if ansible async timed out
+    fail:
+      msg: The ssh connection attempt is hanging, please check e.g. your internet connection and that you don't have any stale ssh file socket
+    when:
+      - login_as_self is defined
+      - login_as_self.msg is search('Timeout exceeded')
 
   - name: Use bootstrap_user to login if current/configured user failed or if fact checking is disabled
     set_fact:
