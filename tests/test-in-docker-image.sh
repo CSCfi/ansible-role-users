@@ -15,9 +15,9 @@ ANSIBLE_PLAYBOOk="tests/test.yml"
 ANSIBLE_PLAYBOOK_IDEMPOTENCY="tests/test_idempotency.yml"
 ANSIBLE_PLAYBOOK_FACTLESS="tests/test_factless.yml"
 ANSIBLE_PLAYBOOK_ID_FACTLESS="tests/test_id_factless.yml"
-ANSIBLE_LOG_LEVEL=""
+ANSIBLE_LOG_LEVEL="-vvv --diff"
 #ANSIBLE_LOG_LEVEL="-v"
-ANSIBLE_CHECK_LOG_LEVEL=""
+ANSIBLE_CHECK_LOG_LEVEL="-vvv --diff"
 APACHE_CTL="apache2ctl"
 
 # if there wasn't sudo then ansible couldn't use it
