@@ -68,24 +68,10 @@
       loop_control:
         loop_var: group
         label: "{{ group.name }}"
-
-    - name: Create sudoers file for admin group
-      copy:
-        dest: "/etc/sudoers.d/{{ admingroup }}"
-        owner: "root"
-        group: "root"
-        mode: 0440
-        content: '%{{ admingroup }} ALL=(ALL) NOPASSWD:ALL'
-        validate: 'visudo -cf %s'
-      register: reg_add_sudoers_file_admins
-      when: admin_sudoers|bool
-
-    - name: Ensure /etc/sudoers.d is scanned by sudo
-      lineinfile:
-        dest: '/etc/sudoers'
-        regexp: '#includedir\s+/etc/sudoers.d'
-        line: '#includedir /etc/sudoers.d'
-      when: admin_sudoers|bool
+    
+    - name: Modify sudoers file for admin group
+      import_tasks: modify_sudoers.yml
+      when: admin_sudoers|bool      
 
     - name: Add or remove users from the lists in admin_list_of_user_lists
       user:
