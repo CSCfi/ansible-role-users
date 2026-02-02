@@ -1,0 +1,35 @@
+---
+
+- name: Create sudoers file for admin group
+  copy:
+    dest: "/etc/sudoers.d/{{ admingroup }}"
+    owner: "root"
+    group: "root"
+    mode: 0440
+    content: '%{{ admingroup }} ALL=(ALL) NOPASSWD:ALL'
+    validate: 'visudo -cf %s'
+  register: reg_add_sudoers_file_admins
+
+- name: Read /etc/sudoers content
+  ansible.builtin.slurp:
+    path: /etc/sudoers
+  register: sudoers_content
+
+- name: Decode sudoers content
+  ansible.builtin.set_fact:
+    sudoers_text: "{{ sudoers_content['content'] | b64decode }}"
+
+- name: Check if includedir line exists
+  ansible.builtin.set_fact:
+    include_exists: >-
+      {{ sudoers_text.find('@includedir /etc/sudoers.d') != -1 or
+        sudoers_text.find('#includedir /etc/sudoers.d') != -1 }}
+
+- name: "Add #includedir /etc/sudoers.d only if not present"
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    line: '#includedir /etc/sudoers.d'
+    insertafter: '^# See sudoers\\(5\\) for more information on \"@include\" directives:'
+    validate: '/usr/sbin/visudo -cf %s'
+  when:
+    - not include_exists
