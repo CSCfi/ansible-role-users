@@ -3,7 +3,7 @@
 # you have a working user account
   - name: Test login as current/configured user if fact checking is disabled. Timeout 10s.
     vars:
-      ansible_python_interpreter: "{{ansible_playbook_python}}"
+      ansible_python_interpreter: "{{ ansible_playbook_python }}"
     command: ssh {{ ssh_extra_args }} {{ inventory_hostname }} whoami
     become: no # We don't want to run as root here
     check_mode: no
@@ -36,18 +36,20 @@
     when:
       - ansible_ssh_user is undefined
 
-    # increase character limit to 30 characters for user column, remove headers, show first column unique entries and replace newline with space
-  - name: shell - grab a space separated string of all users running processes
-    shell: ps axo user:30|grep -v -e ^root -e ^USER|cut -d " " -f1|uniq|tr "\n" " "
-    check_mode: no
-    changed_when: false # This never changes anything
-    register: reg_ansible_logged_in_users
+  - name: Get users
+    command: ps axo user=
+    register: ps_users
+    changed_when: false
 
-  - name: set a fact an ansible list of unique and logged in users
-    check_mode: no
-    changed_when: false # This never changes anything
+  - name: Build user list
     set_fact:
-      admin_logged_in_users: "{{ reg_ansible_logged_in_users.stdout.split(' ')|unique }}"
+      admin_logged_in_users: >-
+        {{
+          ps_users.stdout_lines
+          | reject('equalto', 'root')
+          | unique
+          | list
+        }}
 
   # Keep this block to avoid ugly diff
   - block:
